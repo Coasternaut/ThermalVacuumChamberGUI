@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 import sys
 
 class window(QMainWindow):
@@ -20,15 +20,16 @@ class window(QMainWindow):
         self.b1.clicked.connect(self.clicked)
         
     def clicked(self):
-        self.label.setText("you pressed the button")
-        self.update()
+        msg = QMessageBox()
+        msg.setWindowTitle("message")
+        msg.setText("the message")
+        msg.setIcon(QMessageBox.Information)
+        
+        popup = msg.exec_()
+        
         
     def update(self):
         self.label.adjustSize()
-
-
-def clicked():
-    print("clicked")
 
 
 def app():
