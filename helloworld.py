@@ -24,8 +24,19 @@ class window(QMainWindow):
         msg.setWindowTitle("message")
         msg.setText("the message")
         msg.setIcon(QMessageBox.Information)
+        msg.setStandardButtons(QMessageBox.Cancel|QMessageBox.Retry|QMessageBox.Ignore)
+        msg.setDefaultButton(QMessageBox.Ignore)
+        msg.setInformativeText("more info text")
+        
+        msg.setDetailedText("more detailed text")
+        
+        msg.buttonClicked.connect(self.popupButton)
         
         popup = msg.exec_()
+        
+    def popupButton(self, button):
+        print(button.text())
+            
         
         
     def update(self):
