@@ -1,5 +1,6 @@
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication
+import sys
 
 Form, Window = uic.loadUiType("demoTVCgui.ui")
 
@@ -10,4 +11,4 @@ form = Form()
 form.setupUi(window)
 
 window.show()
-app.exec()
+sys.exit(app.exec())
