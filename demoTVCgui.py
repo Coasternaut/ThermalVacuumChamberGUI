@@ -1,14 +1,16 @@
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMainWindow
 import sys
 
-Form, Window = uic.loadUiType("demoTVCgui.ui")
+class mainApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("demoTVCgui.ui", self)
 
-app = QApplication([])
-window = Window()
-
-form = Form()
-form.setupUi(window)
-
-window.show()
-sys.exit(app.exec())
+if __name__ == '__main__':
+    app = QApplication([])
+    
+    mainApp = mainApp()
+    mainApp.show()
+    
+    sys.exit(app.exec())
