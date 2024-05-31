@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>0</y>
+      <width>261</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>36</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Audio Plot</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>781</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>GroupBox</string>
+    </property>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>761</width>
+       <height>109</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Drop Samples</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Update interval (ms)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Audio Device</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Sample Rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="sampleRateBox">
+        <property name="text">
+         <string>44100</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="updateIntervalBox">
+        <property name="text">
+         <string>30</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="audioDeviceBox"/>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="dropSamplesBox">
+        <property name="text">
+         <string>1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Window Length</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="startButton">
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="windowLengthBox">
+        <property name="text">
+         <string>1000</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="plot" native="true">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>230</y>
+      <width>731</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(0, 0, 0);</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
