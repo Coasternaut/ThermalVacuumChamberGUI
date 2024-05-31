@@ -1,5 +1,6 @@
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
+import pyqtgraph as pg
 import sys
 
 class mainApp(QMainWindow):
@@ -8,14 +9,30 @@ class mainApp(QMainWindow):
         uic.loadUi("demoTVCgui.ui", self)
         self.presDial.actionTriggered.connect(self.setPres)
         self.tempDial.actionTriggered.connect(self.setTemp)
+        self.logButton.pressed.connect(self.logData)
+        
+        self.presLog = []
+        self.tempLog = []
+        
+        self.currentPres = 0
+        self.currentTemp = 0
         
     def setPres(self):
-        currentPres = self.presDial.value()
-        self.currentPres.setText(str(currentPres))
+        self.currentPres = self.presDial.value()
+        self.currentPresDisp.setText(str(self.currentPres))
         
     def setTemp(self):
-        currentTemp = self.tempDial.value()
-        self.currentTemp.setText(str(currentTemp))
+        self.currentTemp = self.tempDial.value()
+        self.currentTempDisp.setText(str(self.currentTemp))
+        
+    def logData(self):
+        self.presLog.append(self.currentPres)
+        self.tempLog.append(self.currentTemp)
+        self.plotData()
+        
+    def plotData(self):
+        self.presPlot.plot(self.presLog, pen="r")
+        self.tempPlot.plot(self.tempLog, pen="b")
 
 if __name__ == '__main__':
     app = QApplication([])
