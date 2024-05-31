@@ -68,7 +68,7 @@
      <string>Temperature</string>
     </property>
    </widget>
-   <widget class="QLabel" name="currentTime">
+   <widget class="QLabel" name="elapsedTimeDisplay">
     <property name="geometry">
      <rect>
       <x>590</x>
@@ -83,7 +83,7 @@
      </font>
     </property>
     <property name="text">
-     <string>currentTime</string>
+     <string>0</string>
     </property>
    </widget>
    <widget class="QLabel" name="currentPresDisp">
@@ -146,7 +146,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>480</y>
+      <y>500</y>
       <width>50</width>
       <height>64</height>
      </rect>
@@ -197,13 +197,13 @@
      </font>
     </property>
     <property name="minimum">
-     <number>100</number>
+     <number>1</number>
     </property>
     <property name="maximum">
      <number>10000</number>
     </property>
     <property name="value">
-     <number>1000</number>
+     <number>100</number>
     </property>
    </widget>
    <widget class="QDial" name="tempDial">
@@ -228,17 +228,40 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="logButton">
+   <widget class="QPushButton" name="startButton">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>510</y>
-      <width>75</width>
-      <height>23</height>
+      <x>440</x>
+      <y>80</y>
+      <width>103</width>
+      <height>27</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Log Data</string>
+     <string>Start Logging</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="stopButton">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>110</y>
+      <width>102</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Stop Logging</string>
     </property>
    </widget>
   </widget>
