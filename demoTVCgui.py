@@ -13,6 +13,7 @@ class mainApp(QMainWindow):
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         
+        self.elapsedTimeLog = []
         self.presLog = []
         self.tempLog = []
         
@@ -34,15 +35,17 @@ class mainApp(QMainWindow):
         self.currentTempDisp.setText(str(self.currentTemp))
         
     def logData(self):
-        self.elapsedTime += self.refreshInterval
+        self.elapsedTime = round((self.refreshInterval / 1000.0) + self.elapsedTime, 3)
         self.elapsedTimeDisplay.setText(str(self.elapsedTime))
+        
+        self.elapsedTimeLog.append(self.elapsedTime)
         self.presLog.append(self.currentPres)
         self.tempLog.append(self.currentTemp)
         self.plotData()
         
     def plotData(self):
-        self.presPlot.plot(self.presLog, pen="r")
-        self.tempPlot.plot(self.tempLog, pen="b")
+        self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
+        self.tempPlot.plot(self.elapsedTimeLog, self.tempLog, pen="b")
         
     def startLogging(self):
         self.refreshInterval = self.refreshBox.value()
