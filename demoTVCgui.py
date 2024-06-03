@@ -2,7 +2,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer
 import pyqtgraph as pg
-import sys
+import sys, sqlite3
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -26,6 +26,11 @@ class mainApp(QMainWindow):
         
         self.refreshInterval = self.refreshBox.value()
         
+        self.db = sqlite3.connect("log.db")
+        self.cursor = self.db.cursor()
+        
+        self.cursor.execute("CREATE TABLE log(elapsed, pres, temp)")
+        
     def setPres(self):
         self.currentPres = self.presDial.value()
         self.currentPresDisp.setText(str(self.currentPres))
@@ -41,6 +46,10 @@ class mainApp(QMainWindow):
         self.elapsedTimeLog.append(self.elapsedTime)
         self.presLog.append(self.currentPres)
         self.tempLog.append(self.currentTemp)
+        
+        self.cursor.execute("INSERT INTO log(elapsed, pres, temp) VALUES (?, ?, ?)", (self.elapsedTime, self.currentPres, self.currentTemp))
+        self.db.commit()
+        
         self.plotData()
         
     def plotData(self):
