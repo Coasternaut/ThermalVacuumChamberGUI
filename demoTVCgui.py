@@ -2,7 +2,9 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer
 import pyqtgraph as pg
-import sys
+import sys, datetime
+
+import pandas as pd
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -13,8 +15,14 @@ class mainApp(QMainWindow):
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         
-        self.presLog = []
-        self.tempLog = []
+        self.log = pd.DataFrame({
+            "Timestamp": [pd.Timestamp(datetime.datetime.now())],
+            "Elapsed Time": 0,
+            "Pres": 0,
+            "Temp": 0
+        })
+        
+        self.log.set_index("Timestamp")
         
         self.currentPres = 0
         self.currentTemp = 0
@@ -36,9 +44,21 @@ class mainApp(QMainWindow):
     def logData(self):
         self.elapsedTime += self.refreshInterval
         self.elapsedTimeDisplay.setText(str(self.elapsedTime))
-        self.presLog.append(self.currentPres)
-        self.tempLog.append(self.currentTemp)
-        self.plotData()
+        
+        newLog = pd.DataFrame({
+            "Timestamp": pd.Timestamp(datetime.datetime.now()),
+            "Elapsed Time": self.elapsedTime,
+            "Pres": self.currentPres,
+            "Temp": self.currentTemp
+            })
+        newLog.set_index("Timestamp")
+        
+        pd.concat([self.log, newLog])
+        # self.presLog.append(self.currentPres)
+        # self.tempLog.append(self.currentTemp)
+        # self.plotData()
+        
+        print(self.log)
         
     def plotData(self):
         self.presPlot.plot(self.presLog, pen="r")
