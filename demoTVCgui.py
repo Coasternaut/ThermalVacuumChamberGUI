@@ -2,7 +2,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer
 import pyqtgraph as pg
-import sys, sqlite3, datetime
+import sys, sqlite3, datetime, time
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -13,6 +13,7 @@ class mainApp(QMainWindow):
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         
+        self.timestampLog = []
         self.elapsedTimeLog = []
         self.presLog = []
         self.tempLog = []
@@ -48,6 +49,7 @@ class mainApp(QMainWindow):
         self.currentTime = datetime.datetime.now()
         self.currentTimeString = self.currentTime.strftime("%Y-%m-%d %H:%M:%S")
         
+        self.timestampLog.append(self.currentTime.timestamp())
         self.elapsedTimeLog.append(self.elapsedTime)
         self.presLog.append(self.currentPres)
         self.tempLog.append(self.currentTemp)
@@ -58,10 +60,12 @@ class mainApp(QMainWindow):
         self.plotData()
         
     def plotData(self):
-        self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
+        self.presPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        self.presPlot.plot(x=self.timestampLog, y=self.presLog, pen="r")
+        
         self.tempPlot.plot(self.elapsedTimeLog, self.tempLog, pen="b")
         
-    def startLogging(self):
+    def startLogging(self): 
         self.refreshInterval = self.refreshBox.value()
         self.timer.start(self.refreshInterval)
     
