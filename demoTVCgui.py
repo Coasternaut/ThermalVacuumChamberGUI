@@ -2,7 +2,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer
 import pyqtgraph as pg
-import sys, sqlite3
+import sys, sqlite3, datetime
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -20,16 +20,18 @@ class mainApp(QMainWindow):
         self.currentPres = 0
         self.currentTemp = 0
         self.elapsedTime = 0
+        self.currentTime = datetime.datetime.now()
+
         
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.logData)
         
         self.refreshInterval = self.refreshBox.value()
-        
-        self.db = sqlite3.connect("log.db")
+
+        self.db = sqlite3.connect(f'log{self.currentTime.strftime("%Y-%m-%d--%H-%M-%S")}.db')
         self.cursor = self.db.cursor()
         
-        self.cursor.execute("CREATE TABLE log(elapsed, pres, temp)")
+        self.cursor.execute("CREATE TABLE log(timestamp, elapsed, pres, temp)")
         
     def setPres(self):
         self.currentPres = self.presDial.value()
@@ -43,11 +45,14 @@ class mainApp(QMainWindow):
         self.elapsedTime = round((self.refreshInterval / 1000.0) + self.elapsedTime, 3)
         self.elapsedTimeDisplay.setText(str(self.elapsedTime))
         
+        self.currentTime = datetime.datetime.now()
+        self.currentTimeString = self.currentTime.strftime("%Y-%m-%d %H:%M:%S")
+        
         self.elapsedTimeLog.append(self.elapsedTime)
         self.presLog.append(self.currentPres)
         self.tempLog.append(self.currentTemp)
         
-        self.cursor.execute("INSERT INTO log(elapsed, pres, temp) VALUES (?, ?, ?)", (self.elapsedTime, self.currentPres, self.currentTemp))
+        self.cursor.execute("INSERT INTO log(timestamp, elapsed, pres, temp) VALUES (?, ?, ?, ?)", (self.currentTimeString, self.elapsedTime, self.currentPres, self.currentTemp))
         self.db.commit()
         
         self.plotData()
