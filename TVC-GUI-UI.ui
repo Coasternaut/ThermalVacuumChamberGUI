@@ -7,8 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>800</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -36,7 +41,7 @@
     <property name="geometry">
      <rect>
       <x>100</x>
-      <y>150</y>
+      <y>280</y>
       <width>122</width>
       <height>39</height>
      </rect>
@@ -54,7 +59,7 @@
     <property name="geometry">
      <rect>
       <x>500</x>
-      <y>150</y>
+      <y>280</y>
       <width>185</width>
       <height>39</height>
      </rect>
@@ -72,7 +77,7 @@
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>80</y>
+      <y>120</y>
       <width>128</width>
       <height>29</height>
      </rect>
@@ -90,7 +95,7 @@
     <property name="geometry">
      <rect>
       <x>90</x>
-      <y>200</y>
+      <y>330</y>
       <width>168</width>
       <height>29</height>
      </rect>
@@ -108,7 +113,7 @@
     <property name="geometry">
      <rect>
       <x>510</x>
-      <y>200</y>
+      <y>330</y>
       <width>168</width>
       <height>29</height>
      </rect>
@@ -126,7 +131,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>280</y>
+      <y>410</y>
       <width>256</width>
       <height>192</height>
      </rect>
@@ -136,7 +141,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>280</y>
+      <y>410</y>
       <width>256</width>
       <height>192</height>
      </rect>
@@ -146,7 +151,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>500</y>
+      <y>630</y>
       <width>50</width>
       <height>64</height>
      </rect>
@@ -162,55 +167,13 @@
     </property>
     <property name="notchesVisible">
      <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="refreshLabel">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>90</y>
-      <width>229</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Refresh Interval (ms)</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="refreshBox">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>80</y>
-      <width>131</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="minimum">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <number>10000</number>
-    </property>
-    <property name="value">
-     <number>100</number>
     </property>
    </widget>
    <widget class="QDial" name="tempDial">
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>480</y>
+      <y>610</y>
       <width>50</width>
       <height>64</height>
      </rect>
@@ -228,41 +191,149 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="startButton">
+   <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>80</y>
-      <width>103</width>
-      <height>27</height>
+      <x>30</x>
+      <y>90</y>
+      <width>353</width>
+      <height>101</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Start Logging</string>
-    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Display time:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBox">
+       <item>
+        <property name="text">
+         <string>Full Time</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>30 min</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1 hr</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2 hr</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4 hr</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Custom</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Beginning:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>End:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QDateTimeEdit" name="dateTimeEdit_begin">
+       <property name="currentSection">
+        <enum>QDateTimeEdit::MonthSection</enum>
+       </property>
+       <property name="displayFormat">
+        <string>M/d/yyyy h:mm:ss</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QDateTimeEdit" name="dateTimeEdit_end">
+       <property name="currentSection">
+        <enum>QDateTimeEdit::MonthSection</enum>
+       </property>
+       <property name="displayFormat">
+        <string>M/d/yyyy h:mm:ss</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QPushButton" name="stopButton">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>110</y>
-      <width>102</width>
-      <height>27</height>
+      <x>410</x>
+      <y>100</y>
+      <width>160</width>
+      <height>80</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Stop Logging</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="startButton">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Start Logging</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stopButton">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Stop Logging</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -271,7 +342,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
