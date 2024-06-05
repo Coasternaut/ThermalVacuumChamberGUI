@@ -1,8 +1,9 @@
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, QThread
 import pyqtgraph as pg
-import sys
+import sys, time, random
+import numpy as np
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -48,13 +49,38 @@ class mainApp(QMainWindow):
         self.tempPlot.plot(self.elapsedTimeLog, self.tempLog, pen="b")
         
     def startLogging(self):
-        self.refreshInterval = self.refreshBox.value()
-        self.timer.start(self.refreshInterval)
+        self.getTempThread = getTemp()
+        self.getTempThread.start()
     
     def stopLogging(self):
-        self.timer.stop()
+        print("stopping thread")
+        self.getTempThread.quit()
+        
+class getTemp(QThread):
+    def run(self):
+        self.timeSent = None
+        self.timeRecieved = None
+        while self.isRunning:
+            if (self.timeSent == None or time.time() - self.timeSent >= 1):
+                self.timeSent = time.time()
+                # TODO send request for temp packet
+                
+                # TEST
+                randomFloat = random.uniform(0, 100)
+                print(randomFloat)
+                
+                np.append(tempTimeLog, time.time())
+                np.append(temp1Log, randomFloat)
+                time.sleep(0.1)
+        
+    
 
 if __name__ == '__main__':
+    
+    #numpy arrays to store data logs
+    tempTimeLog = np.array([])
+    temp1Log = np.array([])
+    
     app = QApplication([])
     
     mainApp = mainApp()
