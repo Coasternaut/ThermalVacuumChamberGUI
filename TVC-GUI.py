@@ -2,7 +2,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer, QThread
 import pyqtgraph as pg
-import sys, time, random
+import sys, time, datetime, random
 import numpy as np
 
 class mainApp(QMainWindow):
@@ -69,7 +69,7 @@ class getTemp(QThread):
                 randomFloat = random.uniform(0, 100)
                 print(randomFloat)
                 
-                np.append(tempTimeLog, time.time())
+                np.append(tempTimeLog, datetime.datetime.now())
                 np.append(temp1Log, randomFloat)
                 time.sleep(0.1)
         
