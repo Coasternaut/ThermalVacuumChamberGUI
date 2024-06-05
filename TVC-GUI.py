@@ -7,7 +7,7 @@ import sys
 class mainApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("demoTVCgui.ui", self)
+        uic.loadUi("TVC-GUI-UI.ui", self)
         self.presDial.actionTriggered.connect(self.setPres)
         self.tempDial.actionTriggered.connect(self.setTemp)
         self.startButton.pressed.connect(self.startLogging)
