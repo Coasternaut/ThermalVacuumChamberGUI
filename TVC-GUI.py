@@ -22,10 +22,13 @@ class mainApp(QMainWindow):
         self.currentTemp = 0
         self.elapsedTime = 0
         
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.logData)
+        self.updateGraphTimer = QTimer(self)
+        self.updateGraphTimer.setInterval(1000)
+        self.updateGraphTimer.timeout.connect(self.plotData)
         
-        self.refreshInterval = self.refreshBox.value()
+        self.getTempThread = getTemp()
+        
+        #self.refreshInterval = self.refreshBox.value()
         
     def setPres(self):
         self.currentPres = self.presDial.value()
@@ -46,11 +49,12 @@ class mainApp(QMainWindow):
         
     def plotData(self):
         self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
-        self.tempPlot.plot(self.elapsedTimeLog, self.tempLog, pen="b")
+        self.tempPlot.plot(temp1Log, pen="b")
         
     def startLogging(self):
-        self.getTempThread = getTemp()
         self.getTempThread.start()
+        self.updateGraphTimer.start()
+
     
     def stopLogging(self):
         print("stopping thread")
@@ -58,9 +62,11 @@ class mainApp(QMainWindow):
         
 class getTemp(QThread):
     def run(self):
+        global tempTimeLog
+        global temp1Log
         self.timeSent = None
         self.timeRecieved = None
-        while self.isRunning:
+        while self.isRunning():
             if (self.timeSent == None or time.time() - self.timeSent >= 1):
                 self.timeSent = time.time()
                 # TODO send request for temp packet
@@ -69,10 +75,11 @@ class getTemp(QThread):
                 randomFloat = random.uniform(0, 100)
                 print(randomFloat)
                 
-                np.append(tempTimeLog, datetime.datetime.now())
-                np.append(temp1Log, randomFloat)
+                tempTimeLog = np.append(tempTimeLog, datetime.datetime.now())
+                temp1Log = np.append(temp1Log, randomFloat)
                 time.sleep(0.1)
         
+            
     
 
 if __name__ == '__main__':
