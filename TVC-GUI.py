@@ -48,8 +48,10 @@ class mainApp(QMainWindow):
         self.plotData()
         
     def plotData(self):
-        self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
-        self.tempPlot.plot(temp1Log, pen="b")
+        #self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
+        self.tempPlot.clear()
+        self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        self.tempPlot.plot(tempTimeLog, temp1Log, pen="b")
         
     def startLogging(self):
         self.getTempThread.start()
@@ -64,18 +66,21 @@ class getTemp(QThread):
     def run(self):
         global tempTimeLog
         global temp1Log
-        self.timeSent = None
-        self.timeRecieved = None
+        timeSent = None
+        timeRecieved = None
+        
+        startTime = time.time()
         while self.isRunning():
-            if (self.timeSent == None or time.time() - self.timeSent >= 1):
-                self.timeSent = time.time()
+            if (timeSent == None or time.time() - timeSent >= 1):
+                timeSent = time.time()
                 # TODO send request for temp packet
                 
                 # TEST
                 randomFloat = random.uniform(0, 100)
-                print(randomFloat)
+                #elapsedTime = time.time() - startTime
+                #print(elapsedTime)
                 
-                tempTimeLog = np.append(tempTimeLog, datetime.datetime.now())
+                tempTimeLog = np.append(tempTimeLog, time.time())
                 temp1Log = np.append(temp1Log, randomFloat)
                 time.sleep(0.1)
         
