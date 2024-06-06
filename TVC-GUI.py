@@ -3,7 +3,8 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
 from PyQt6.QtCore import QTimer, QThread
 import pyqtgraph as pg
 import sys, time, datetime, random
-import numpy as np
+#import numpy as np
+import pandas as pd
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -50,8 +51,11 @@ class mainApp(QMainWindow):
     def plotData(self):
         #self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
         self.tempPlot.clear()
-        self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-        self.tempPlot.plot(tempTimeLog, temp1Log, pen="b")
+        #self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        # tempGraphTimestamps = []
+        # for t in tempLog.index.values:
+        #     print(type(t))
+        self.tempPlot.plot(tempLog['elapsedTime'].values, tempLog['temp1'].values, pen="b")
         
     def startLogging(self):
         self.getTempThread.start()
@@ -64,8 +68,9 @@ class mainApp(QMainWindow):
         
 class getTemp(QThread):
     def run(self):
-        global tempTimeLog
-        global temp1Log
+        #global tempTimeLog
+        #global temp1Log
+        global tempLog
         timeSent = None
         timeRecieved = None
         
@@ -77,11 +82,20 @@ class getTemp(QThread):
                 
                 # TEST
                 randomFloat = random.uniform(0, 100)
-                #elapsedTime = time.time() - startTime
-                #print(elapsedTime)
+                randomFloat2 = random.uniform(100, 200)
+                elapsedTime = time.time() - startTime
                 
-                tempTimeLog = np.append(tempTimeLog, time.time())
-                temp1Log = np.append(temp1Log, randomFloat)
+                #tempTimeLog = np.append(tempTimeLog, time.time())
+                #temp1Log = np.append(temp1Log, randomFloat)
+                
+                entry = pd.DataFrame({'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now().time])
+                #print(entry)
+                if (tempLog.empty):
+                    tempLog = entry
+                else:
+                    tempLog = pd.concat([tempLog, entry])
+                
+                #print(tempLog)
                 time.sleep(0.1)
         
             
@@ -90,8 +104,10 @@ class getTemp(QThread):
 if __name__ == '__main__':
     
     #numpy arrays to store data logs
-    tempTimeLog = np.array([])
-    temp1Log = np.array([])
+    #tempTimeLog = np.array([])
+    #temp1Log = np.array([])
+    
+    tempLog = pd.DataFrame([])
     
     app = QApplication([])
     
