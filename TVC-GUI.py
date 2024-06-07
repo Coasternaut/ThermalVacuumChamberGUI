@@ -58,7 +58,6 @@ class mainApp(QMainWindow):
         # for t in tempLog.index.values:
         #     print(type(t))
         self.tempPlot.plot(tempLog['elapsedTime'].values, tempLog['temp1'].values, pen="b")
-        saveData()
         
     def startLogging(self):
         self.getTempThread.start()
@@ -100,13 +99,16 @@ class getTemp(QThread):
                     tempLog = entry
                 else:
                     tempLog = pd.concat([tempLog, entry])
+                    
+                saveData()
                 
                 #print(tempLog)
                 time.sleep(0.1)
             
 tempFileName = f"tempLog{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv"
 def saveData():
-    tempLog.to_csv(tempFileName) 
+    tempLog.to_csv(tempFileName)
+    
     
 
 if __name__ == '__main__':
