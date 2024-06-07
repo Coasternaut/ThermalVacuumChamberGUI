@@ -15,6 +15,8 @@ class mainApp(QMainWindow):
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         
+        self.actionSave.triggered.connect(saveData)
+        
         self.elapsedTimeLog = []
         self.presLog = []
         self.tempLog = []
@@ -56,6 +58,7 @@ class mainApp(QMainWindow):
         # for t in tempLog.index.values:
         #     print(type(t))
         self.tempPlot.plot(tempLog['elapsedTime'].values, tempLog['temp1'].values, pen="b")
+        saveData()
         
     def startLogging(self):
         self.getTempThread.start()
@@ -65,6 +68,9 @@ class mainApp(QMainWindow):
     def stopLogging(self):
         print("stopping thread")
         self.getTempThread.quit()
+        
+    # def saveData(self):
+    #     tempLog.to_csv("tempLog.csv")
         
 class getTemp(QThread):
     def run(self):
@@ -88,7 +94,7 @@ class getTemp(QThread):
                 #tempTimeLog = np.append(tempTimeLog, time.time())
                 #temp1Log = np.append(temp1Log, randomFloat)
                 
-                entry = pd.DataFrame({'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now().time])
+                entry = pd.DataFrame({'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now().time()])
                 #print(entry)
                 if (tempLog.empty):
                     tempLog = entry
@@ -97,8 +103,10 @@ class getTemp(QThread):
                 
                 #print(tempLog)
                 time.sleep(0.1)
-        
             
+tempFileName = f"tempLog{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv"
+def saveData():
+    tempLog.to_csv(tempFileName) 
     
 
 if __name__ == '__main__':
