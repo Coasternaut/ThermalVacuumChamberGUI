@@ -1,5 +1,5 @@
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QMainWindow, QDial
+from PyQt6.QtWidgets import QApplication, QMainWindow, QDial, QFileDialog
 from PyQt6.QtCore import QTimer, QThread
 import pyqtgraph as pg
 import sys, time, datetime, random
@@ -16,6 +16,7 @@ class mainApp(QMainWindow):
         self.stopButton.pressed.connect(self.stopLogging)
         
         self.actionSave.triggered.connect(saveData)
+        self.actionOpen.triggered.connect(self.openTempFile)
         
         self.elapsedTimeLog = []
         self.presLog = []
@@ -68,8 +69,12 @@ class mainApp(QMainWindow):
         print("stopping thread")
         self.getTempThread.quit()
         
-    # def saveData(self):
-    #     tempLog.to_csv("tempLog.csv")
+    def openTempFile(self):
+        global tempLog
+        tempFile = QFileDialog.getOpenFileName(self, "Open CSV file", '', '*.csv')
+        print(tempFile[0])
+        tempLog = pd.read_csv(tempFile[0])
+        self.plotData()
         
 class getTemp(QThread):
     def run(self):
