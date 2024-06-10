@@ -55,11 +55,11 @@ class mainApp(QMainWindow):
     def plotData(self):
         #self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
         self.tempPlot.clear()
-        #self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         # tempGraphTimestamps = []
         # for t in tempLog.index.values:
         #     print(type(t))
-        self.tempPlot.plot(tempLog['elapsedTime'].values, tempLog['temp1'].values, pen="b")
+        self.tempPlot.plot(tempLog['timestamp'].values, tempLog['temp1'].values, pen="b")
         
     def startLogging(self):
         self.getTempThread.start()
@@ -108,7 +108,7 @@ class getTemp(QThread):
                 #tempTimeLog = np.append(tempTimeLog, time.time())
                 #temp1Log = np.append(temp1Log, randomFloat)
                 
-                entry = pd.DataFrame({'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now().time()])
+                entry = pd.DataFrame({'timestamp': time.time(), 'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now()])
                 #print(entry)
                 if (tempLog.empty):
                     tempLog = entry
@@ -120,7 +120,7 @@ class getTemp(QThread):
                 #print(tempLog)
                 time.sleep(0.1)
             
-tempFileName = f"tempLog{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv"
+tempFileName = f"tempLog{datetime.datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}.csv"
 def saveData():
     tempLog.to_csv(tempFileName)
     
