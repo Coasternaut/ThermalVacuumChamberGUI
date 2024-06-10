@@ -14,6 +14,7 @@ class mainApp(QMainWindow):
         self.tempDial.actionTriggered.connect(self.setTemp)
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
+        self.displayTimeBox.currentTextChanged.connect(self.updateGraphRange)
         
         self.actionSave.triggered.connect(saveData)
         self.actionOpen.triggered.connect(self.openTempFile)
@@ -75,6 +76,15 @@ class mainApp(QMainWindow):
         print(tempFile[0])
         tempLog = pd.read_csv(tempFile[0])
         self.plotData()
+        
+    def updateGraphRange(self):
+        currentRange = self.displayTimeBox.currentIndex()
+        print(currentRange)
+        
+        # Full time
+        if (currentRange == 0):
+            self.tempPlot.setXRange(0, tempLog['elapsedTime'].values)
+            
         
 class getTemp(QThread):
     def run(self):
