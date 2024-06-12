@@ -1,6 +1,6 @@
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial, QFileDialog
-from PyQt6.QtCore import QTimer, QThread
+from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
 import sys, time, datetime, random
 #import numpy as np
@@ -27,6 +27,9 @@ class mainApp(QMainWindow):
         self.currentTemp = 0
         self.elapsedTime = 0
         
+        self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
+        self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
+
         self.updateGraphTimer = QTimer(self)
         self.updateGraphTimer.setInterval(1000)
         self.updateGraphTimer.timeout.connect(self.plotData)
@@ -60,6 +63,8 @@ class mainApp(QMainWindow):
         # for t in tempLog.index.values:
         #     print(type(t))
         self.tempPlot.plot(tempLog['timestamp'].values, tempLog['temp1'].values, pen="b")
+        self.dateTimeEditEnd.setSecsSinceEpoch(tempLog.iloc[-1]['timestamp'])
+        
         
     def startLogging(self):
         self.getTempThread.start()
