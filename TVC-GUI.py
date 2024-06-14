@@ -34,6 +34,7 @@ class mainApp(QMainWindow):
         self.updateGraphTimer.timeout.connect(self.plotData)
         
         self.getTempThread = getTemp()
+        self.getChillerDataThread = getChillerData()
 
         
     def plotData(self):
@@ -51,6 +52,7 @@ class mainApp(QMainWindow):
     # starts logging and graphing data
     def startLogging(self):
         self.getTempThread.start()
+        self.getChillerDataThread.start()
         self.updateGraphTimer.start()
 
     # stops logging data TODO make thread stop
@@ -118,6 +120,25 @@ class getTemp(QThread):
                     tempLog = pd.concat([tempLog, entry])
 
                 time.sleep(0.1)
+                
+class getChillerData(QThread):
+    def run(self):
+        chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
+        while self.isRunning():
+            # get bath temp
+            chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
+            bathTemp = float(chillerSerial.readline().decode('ascii'))
+            
+            # get pump pressure
+            chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
+            pumpPres = float(chillerSerial.readline().decode('ascii'))
+            
+            # get temperature setpoint
+            chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
+            setpoint = float(chillerSerial.readline().decode('ascii'))
+            
+            db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, setpoint) VALUES (?, ?, ?, ?)", (time.time(), bathTemp, pumpPres, setpoint))
+            db.commit()
 
 if __name__ == '__main__':
     
@@ -131,6 +152,7 @@ if __name__ == '__main__':
     
     db = sqlite3.connect(dbPath, check_same_thread=False)
     db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
+    db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, setpoint)")
     
     app = QApplication([])
     
