@@ -139,6 +139,8 @@ class getChillerData(QThread):
             
             db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, setpoint) VALUES (?, ?, ?, ?)", (time.time(), bathTemp, pumpPres, setpoint))
             db.commit()
+            
+            time.sleep(1)
 
 if __name__ == '__main__':
     
