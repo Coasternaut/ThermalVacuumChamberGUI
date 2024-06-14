@@ -85,7 +85,7 @@ class getTemp(QThread):
         global tempLog
         timeRecieved = None
         
-        tempSerial = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
+        tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
         
         
         startTime = time.time()
@@ -124,23 +124,26 @@ class getTemp(QThread):
 class getChillerData(QThread):
     def run(self):
         chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
+        lastUpdateTime = time.time() - .9 # makes loop run on first time
         while self.isRunning():
-            # get bath temp
-            chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
-            bathTemp = float(chillerSerial.readline().decode('ascii'))
-            
-            # get pump pressure
-            chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
-            pumpPres = float(chillerSerial.readline().decode('ascii'))
-            
-            # get temperature setpoint
-            chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
-            setpoint = float(chillerSerial.readline().decode('ascii'))
-            
-            db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, setpoint) VALUES (?, ?, ?, ?)", (time.time(), bathTemp, pumpPres, setpoint))
-            db.commit()
-            
-            time.sleep(1)
+            if (time.time() > lastUpdateTime + 0.8):
+                # get bath temp
+                chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
+                bathTemp = float(chillerSerial.readline().decode('ascii'))
+                
+                # get pump pressure
+                chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
+                pumpPres = float(chillerSerial.readline().decode('ascii'))
+                
+                # get temperature setpoint
+                chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
+                setpoint = float(chillerSerial.readline().decode('ascii'))
+
+                lastUpdateTime = time.time()
+                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, setpoint) VALUES (?, ?, ?, ?)", (lastUpdateTime, bathTemp, pumpPres, setpoint))
+                db.commit()
+                
+            time.sleep(.1)
 
 if __name__ == '__main__':
     
