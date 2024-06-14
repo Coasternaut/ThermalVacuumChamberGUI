@@ -2,7 +2,7 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDial, QFileDialog
 from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
-import sys, time, datetime, random
+import sys, time, datetime, random, sqlite3, serial
 #import numpy as np
 import pandas as pd
 
@@ -56,6 +56,7 @@ class mainApp(QMainWindow):
         self.plotData()
         
     def plotData(self):
+        global tempLog
         #self.presPlot.plot(self.elapsedTimeLog, self.presLog, pen="r")
         self.tempPlot.clear()
         self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
@@ -68,7 +69,7 @@ class mainApp(QMainWindow):
         
     def startLogging(self):
         self.getTempThread.start()
-        self.updateGraphTimer.start()
+        # self.updateGraphTimer.start()
 
     
     def stopLogging(self):
@@ -99,28 +100,44 @@ class getTemp(QThread):
         timeSent = None
         timeRecieved = None
         
+        tempSerial = serial.Serial('/dev/cu.usbmodem11301', 9600, timeout=1)
+        
+        
         startTime = time.time()
         while self.isRunning():
-            if (timeSent == None or time.time() - timeSent >= 1):
-                timeSent = time.time()
-                # TODO send request for temp packet
+                input = tempSerial.readline().decode('ascii')
                 
-                # TEST
-                randomFloat = random.uniform(0, 100)
-                randomFloat2 = random.uniform(100, 200)
+                # converts data string into list of floats
+                tempValueStr = input.split(';')
+                tempValueStr.pop()
+                tempValues = [float(val) for val in tempValueStr]
+                
+                db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                           (time.time(), tempValues[0], tempValues[1], tempValues[2], tempValues[3], tempValues[4], tempValues[5], tempValues[6]))
+                db.commit()
+                
+                
                 elapsedTime = time.time() - startTime
                 
                 #tempTimeLog = np.append(tempTimeLog, time.time())
                 #temp1Log = np.append(temp1Log, randomFloat)
                 
-                entry = pd.DataFrame({'timestamp': time.time(), 'elapsedTime': elapsedTime, 'temp1': randomFloat, 'temp2': randomFloat2}, index=[datetime.datetime.now()])
+                entry = pd.DataFrame({'timestamp': time.time(), 
+                                      'tempA': tempValues[0], 
+                                      'tempB': tempValues[1], 
+                                      'tempC': tempValues[2], 
+                                      'tempD': tempValues[3], 
+                                      'tempE': tempValues[4], 
+                                      'tempF': tempValues[5], 
+                                      'tempG': tempValues[6]}, 
+                                     index=[datetime.datetime.now()])
                 #print(entry)
                 if (tempLog.empty):
                     tempLog = entry
                 else:
                     tempLog = pd.concat([tempLog, entry])
                     
-                saveData()
+                #saveData()
                 
                 #print(tempLog)
                 time.sleep(0.1)
@@ -138,6 +155,11 @@ if __name__ == '__main__':
     #temp1Log = np.array([])
     
     tempLog = pd.DataFrame([])
+    
+    dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
+    
+    db = sqlite3.connect(dbPath, check_same_thread=False)
+    db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
     
     app = QApplication([])
     
