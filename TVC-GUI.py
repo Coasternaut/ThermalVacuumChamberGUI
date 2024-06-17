@@ -82,7 +82,7 @@ class mainApp(QMainWindow):
 class getTemp(QThread):
     def run(self):
 
-        global tempLog
+        global currentTemps
         timeRecieved = None
         
         tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
@@ -95,52 +95,46 @@ class getTemp(QThread):
                 elapsedTime = timeRecieved - startTime
                 
                 # converts data string into list of floats
-                tempValueStr = input.split(';')
-                tempValueStr.pop()
-                tempValues = [float(val) for val in tempValueStr]
+                tempValuesStr = input.split(';')
+                tempValuesStr.pop()
+                
+                currentTemps = {'tempA': float(tempValuesStr[0]), 
+                                'tempB': float(tempValuesStr[1]), 
+                                'tempC': float(tempValuesStr[2]), 
+                                'tempD': float(tempValuesStr[3]), 
+                                'tempE': float(tempValuesStr[4]), 
+                                'tempF': float(tempValuesStr[5]), 
+                                'tempG': float(tempValuesStr[6])}
                 
                 db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                           (timeRecieved, tempValues[0], tempValues[1], tempValues[2], tempValues[3], tempValues[4], tempValues[5], tempValues[6]))
+                           (timeRecieved, currentTemps['tempA'], currentTemps['tempB'], currentTemps['tempC'], currentTemps['tempD'], currentTemps['tempE'], currentTemps['tempF'], currentTemps['tempG']))
                 db.commit()
-                
-                
-                entry = pd.DataFrame({'timestamp': timeRecieved, 
-                                      'tempA': tempValues[0], 
-                                      'tempB': tempValues[1], 
-                                      'tempC': tempValues[2], 
-                                      'tempD': tempValues[3], 
-                                      'tempE': tempValues[4], 
-                                      'tempF': tempValues[5], 
-                                      'tempG': tempValues[6]}, 
-                                     index=[datetime.datetime.now()])
-                #print(entry)
-                if (tempLog.empty):
-                    tempLog = entry
-                else:
-                    tempLog = pd.concat([tempLog, entry])
 
                 time.sleep(0.1)
                 
 class getChillerData(QThread):
     def run(self):
+        global currentChillerValues
+        
         chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
         lastUpdateTime = time.time() - .9 # makes loop run on first time
         while self.isRunning():
             if (time.time() > lastUpdateTime + 0.8):
                 # get bath temp
                 chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
-                bathTemp = float(chillerSerial.readline().decode('ascii'))
+                currentChillerValues['bath_temp'] = float(chillerSerial.readline().decode('ascii'))
                 
                 # get pump pressure
                 chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
-                pumpPres = float(chillerSerial.readline().decode('ascii'))
+                currentChillerValues['pump_pres'] = float(chillerSerial.readline().decode('ascii'))
                 
                 # get temperature setpoint
                 chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
-                tempSetpoint = float(chillerSerial.readline().decode('ascii'))
+                currentChillerValues['temp_setpoint'] = float(chillerSerial.readline().decode('ascii'))
 
                 lastUpdateTime = time.time()
-                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", (lastUpdateTime, bathTemp, pumpPres, tempSetpoint))
+                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
+                           (lastUpdateTime, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
                 db.commit()
                 
             time.sleep(.1)
@@ -158,6 +152,23 @@ if __name__ == '__main__':
     db = sqlite3.connect(dbPath, check_same_thread=False)
     db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
     db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
+    
+    # intilized data storage for live display
+    currentTemps = {
+        'tempA': 0.0,
+        'tempB': 0.0,
+        'tempC': 0.0,
+        'tempD': 0.0,
+        'tempE': 0.0,
+        'tempF': 0.0,
+        'tempG': 0.0,
+    }
+    
+    currentChillerValues = {
+        'bath_temp': 0.0,
+        'pump_pres': 0.0,
+        'temp_setpoint': 0.0
+    }
     
     app = QApplication([])
     
