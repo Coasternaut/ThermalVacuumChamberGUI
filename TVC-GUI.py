@@ -12,10 +12,10 @@ class mainApp(QMainWindow):
 
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
-        self.displayTimeBox.currentTextChanged.connect(self.updateGraphRange)
+        self.displayTimeBox.currentTextChanged.connect(self.updateUI)
         
         # self.actionSave.triggered.connect(saveData) TODO implement export function
-        self.actionOpen.triggered.connect(self.openTempFile)
+        self.actionOpen.triggered.connect(self.openDatabaseFile)
         
         self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
@@ -68,8 +68,12 @@ class mainApp(QMainWindow):
         global db
         
         # closes database if one currently is open
-        if (db):
-            db.close()
+        try:
+            if (db):
+                db.close()
+                print("Closing existing db file")
+        except NameError:
+            print("No db file exists to close")
             
         # creates new database file
         dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
