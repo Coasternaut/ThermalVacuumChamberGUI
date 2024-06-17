@@ -28,13 +28,25 @@ class mainApp(QMainWindow):
         self.getChillerDataThread = getChillerData()
 
         
+        
     def plotData(self):
-        global tempLog
-
+        global beginGraphTimestamp, endGraphTimestamp
+        
+        cur = db.cursor()
+        cur.row_factory = lambda cursor, row: row[0]
+        
+        
         #plots tempA
+        cur.execute("SELECT timestamp FROM temp_log WHERE timestamp >= ? AND timestamp <= ? ", (beginGraphTimestamp, endGraphTimestamp))
+        timestamps = cur.fetchall()
+        
+        cur.execute("SELECT tempA FROM temp_log WHERE timestamp >= ? AND timestamp <= ? ", (beginGraphTimestamp, endGraphTimestamp))
+        tempAValues = cur.fetchall()
+        
+        
         self.tempPlot.clear()
         self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-        self.tempPlot.plot(tempLog['timestamp'].values, tempLog['tempA'].values, pen="b")
+        self.tempPlot.plot(timestamps, tempAValues, pen="b")
         
         #updates end display time
         self.dateTimeEditEnd.setSecsSinceEpoch(tempLog.iloc[-1]['timestamp'])
@@ -154,6 +166,9 @@ if __name__ == '__main__':
         'pump_pres': 0.0,
         'temp_setpoint': 0.0
     }
+    
+    endGraphTimestamp = time.time()
+    beginGraphTimestamp = time.time() - (30 * 60) # default to show 30 mins
     
     app = QApplication([])
     
