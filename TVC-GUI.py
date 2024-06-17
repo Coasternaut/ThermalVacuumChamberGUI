@@ -137,10 +137,10 @@ class getChillerData(QThread):
                 
                 # get temperature setpoint
                 chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
-                setpoint = float(chillerSerial.readline().decode('ascii'))
+                tempSetpoint = float(chillerSerial.readline().decode('ascii'))
 
                 lastUpdateTime = time.time()
-                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, setpoint) VALUES (?, ?, ?, ?)", (lastUpdateTime, bathTemp, pumpPres, setpoint))
+                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", (lastUpdateTime, bathTemp, pumpPres, tempSetpoint))
                 db.commit()
                 
             time.sleep(.1)
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     
     db = sqlite3.connect(dbPath, check_same_thread=False)
     db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
-    db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, setpoint)")
+    db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
     
     app = QApplication([])
     
