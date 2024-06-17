@@ -1,8 +1,6 @@
-import pandas as pd
-import numpy as np
 import datetime, sqlite3, random
 
-size = 100
+size = 100000
 
 timestamp = datetime.datetime.now().timestamp()
 
