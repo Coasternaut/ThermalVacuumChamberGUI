@@ -20,17 +20,27 @@ class mainApp(QMainWindow):
         self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
 
-        self.updateGraphTimer = QTimer(self)
-        self.updateGraphTimer.setInterval(1000)
-        self.updateGraphTimer.timeout.connect(self.plotData)
+        self.updateUITimer = QTimer(self)
+        self.updateUITimer.setInterval(1000)
+        self.updateUITimer.timeout.connect(self.updateUI)
         
         self.getTempThread = getTemp()
         self.getChillerDataThread = getChillerData()
 
+
+    def updateUI(self):
+         # calculates the time range displayed on the graphs TODO implement
+         
+        currentRangeSelection = self.displayTimeBox.currentIndex()
         
-        
-    def plotData(self):
-        global beginGraphTimestamp, endGraphTimestamp
+        # Full time
+        if (currentRangeSelection == 0):
+            endGraphTimestamp = time.time()
+            beginGraphTimestamp = time.time()
+        # last 30 mins
+        elif (currentRangeSelection == 1):
+            endGraphTimestamp = time.time()
+            beginGraphTimestamp = time.time() - (30 * 60) 
         
         cur = db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
@@ -49,14 +59,15 @@ class mainApp(QMainWindow):
         self.tempPlot.plot(timestamps, tempAValues, pen="b")
         
         #updates end display time
-        self.dateTimeEditEnd.setSecsSinceEpoch(tempLog.iloc[-1]['timestamp'])
+        self.dateTimeEditStart.setSecsSinceEpoch(timestamps[0])
+        self.dateTimeEditEnd.setSecsSinceEpoch(timestamps[-1])
         
         
     # starts logging and graphing data
     def startLogging(self):
         self.getTempThread.start()
         self.getChillerDataThread.start()
-        self.updateGraphTimer.start()
+        self.updateUITimer.start()
 
     # stops logging data TODO make thread stop
     def stopLogging(self):
@@ -70,15 +81,6 @@ class mainApp(QMainWindow):
         print(tempFile[0])
         tempLog = pd.read_csv(tempFile[0])
         self.plotData()
-        
-    # updates the time range displayed on the graphs TODO implement
-    def updateGraphRange(self):
-        currentRange = self.displayTimeBox.currentIndex()
-        print(currentRange)
-        
-        # Full time
-        if (currentRange == 0):
-            self.tempPlot.setXRange(0, tempLog['elapsedTime'].values)
             
         
 # gets temperature data from Arduino via USB serial and saves it to a database and dataframe to graph from
@@ -166,9 +168,6 @@ if __name__ == '__main__':
         'pump_pres': 0.0,
         'temp_setpoint': 0.0
     }
-    
-    endGraphTimestamp = time.time()
-    beginGraphTimestamp = time.time() - (30 * 60) # default to show 30 mins
     
     app = QApplication([])
     
