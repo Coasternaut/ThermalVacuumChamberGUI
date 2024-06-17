@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QDial, QFileDialog
 from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
 import sys, time, datetime, random, sqlite3, serial
-#import numpy as np
 import pandas as pd
 
 class mainApp(QMainWindow):
@@ -17,14 +16,6 @@ class mainApp(QMainWindow):
         
         # self.actionSave.triggered.connect(saveData) TODO implement export function
         self.actionOpen.triggered.connect(self.openTempFile)
-        
-        self.elapsedTimeLog = []
-        self.presLog = []
-        self.tempLog = []
-        
-        self.currentPres = 0
-        self.currentTemp = 0
-        self.elapsedTime = 0
         
         self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
@@ -140,12 +131,6 @@ class getChillerData(QThread):
             time.sleep(.1)
 
 if __name__ == '__main__':
-    
-    #numpy arrays to store data logs
-    #tempTimeLog = np.array([])
-    #temp1Log = np.array([])
-    
-    tempLog = pd.DataFrame([])
     
     dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
     
