@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime, sqlite3, random
 
-size = 100000
+size = 100
 
 timestamp = datetime.datetime.now().timestamp()
 
