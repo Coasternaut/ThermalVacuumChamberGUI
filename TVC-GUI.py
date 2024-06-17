@@ -97,11 +97,15 @@ class mainApp(QMainWindow):
         global db
         
         # closes database if one currently is open
-        if (db):
-            db.close()
+        try:
+            if (db):
+                db.close()
+                print("Closing existing db file")
+        except NameError:
+            print("No db file exists to close")
             
-        dbPath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
-        db = sqlite3.connect(dbPath, check_same_thread=False)
+        openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
+        db = sqlite3.connect(openFilePath[0], check_same_thread=False)
             
         self.updateUI()
             
