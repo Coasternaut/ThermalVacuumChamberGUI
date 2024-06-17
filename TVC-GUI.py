@@ -65,6 +65,20 @@ class mainApp(QMainWindow):
         
     # starts logging and graphing data
     def startLogging(self):
+        global db
+        
+        # closes database if one currently is open
+        if (db):
+            db.close()
+            
+        # creates new database file
+        dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
+        db = sqlite3.connect(dbPath, check_same_thread=False)
+        
+        db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
+        db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
+        
+        # starts threads to gather data and timer to refresh UI
         self.getTempThread.start()
         self.getChillerDataThread.start()
         self.updateUITimer.start()
@@ -74,13 +88,18 @@ class mainApp(QMainWindow):
         print("stopping thread")
         self.getTempThread.quit()
         
-    # imports temperature data from file
-    def openTempFile(self):
-        global tempLog
-        tempFile = QFileDialog.getOpenFileName(self, "Open CSV file", '', '*.csv')
-        print(tempFile[0])
-        tempLog = pd.read_csv(tempFile[0])
-        self.plotData()
+    # imports stored data from a database file
+    def openDatabaseFile(self):
+        global db
+        
+        # closes database if one currently is open
+        if (db):
+            db.close()
+            
+        dbPath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
+        db = sqlite3.connect(dbPath, check_same_thread=False)
+            
+        self.updateUI()
             
         
 # gets temperature data from Arduino via USB serial and saves it to a database and dataframe to graph from
@@ -145,12 +164,6 @@ class getChillerData(QThread):
             time.sleep(.1)
 
 if __name__ == '__main__':
-    
-    dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
-    
-    db = sqlite3.connect(dbPath, check_same_thread=False)
-    db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
-    db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
     
     # intilized data storage for live display
     currentTemps = {
