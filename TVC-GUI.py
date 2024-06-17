@@ -76,7 +76,7 @@ class mainApp(QMainWindow):
             print("No db file exists to close")
             
         # creates new database file
-        dbPath = f'log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
+        dbPath = f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
         db = sqlite3.connect(dbPath, check_same_thread=False)
         
         db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
