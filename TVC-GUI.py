@@ -57,10 +57,12 @@ class mainApp(QMainWindow):
         self.tempPlot.clear()
         self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         self.tempPlot.plot(timestamps, tempAValues, pen="b")
+
+        print(timestamps)
         
         #updates end display time
-        self.dateTimeEditStart.setSecsSinceEpoch(timestamps[0])
-        self.dateTimeEditEnd.setSecsSinceEpoch(timestamps[-1])
+        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(timestamps[0]))
+        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(timestamps[-1]))
         
         
     # starts logging and graphing data
@@ -105,6 +107,11 @@ class mainApp(QMainWindow):
             
         self.updateUI()
             
+# Converts a epoch timestamp (float) to a QDateTime object
+def QDateTimeFromTimestamp(timestamp):
+    dt = QDateTime(0,0,0,0,0) # placeholder
+    dt.setSecsSinceEpoch(round(timestamp))
+    return dt
         
 # gets temperature data from Arduino via USB serial and saves it to a database and dataframe to graph from
 class getTemp(QThread):
