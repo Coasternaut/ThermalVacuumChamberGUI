@@ -35,8 +35,8 @@ class mainApp(QMainWindow):
         
         # Full time
         if (currentRangeSelection == 0):
-            endGraphTimestamp = time.time()
-            beginGraphTimestamp = time.time()
+            endGraphTimestamp = 2**32 # a really big number
+            beginGraphTimestamp = 0
         # last 30 mins
         elif (currentRangeSelection == 1):
             endGraphTimestamp = time.time()
@@ -47,18 +47,16 @@ class mainApp(QMainWindow):
         
         
         #plots tempA
-        cur.execute("SELECT timestamp FROM temp_log WHERE timestamp >= ? AND timestamp <= ? ", (beginGraphTimestamp, endGraphTimestamp))
+        cur.execute("SELECT timestamp FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
         timestamps = cur.fetchall()
         
-        cur.execute("SELECT tempA FROM temp_log WHERE timestamp >= ? AND timestamp <= ? ", (beginGraphTimestamp, endGraphTimestamp))
+        cur.execute("SELECT tempA FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
         tempAValues = cur.fetchall()
         
         
         self.tempPlot.clear()
         self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         self.tempPlot.plot(timestamps, tempAValues, pen="b")
-
-        print(timestamps)
         
         #updates end display time
         self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(timestamps[0]))
