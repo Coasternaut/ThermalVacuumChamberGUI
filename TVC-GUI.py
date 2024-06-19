@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
 import sys, time, datetime, sqlite3, serial
+from dataclasses import dataclass
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -25,6 +26,19 @@ class mainApp(QMainWindow):
         
         self.getTempThread = getTemp()
         self.getChillerDataThread = getChillerData()
+        
+        global tempChannels 
+        tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue),
+                        dataChannel('tempB', 'temp_log', 'Temp Sensor B', 0.0, self.tempBPlot, self.tempBLabel, self.tempBValue),
+                        dataChannel('tempC', 'temp_log', 'Temp Sensor C', 0.0, self.tempCPlot, self.tempCLabel, self.tempCValue),
+                        dataChannel('tempD', 'temp_log', 'Temp Sensor D', 0.0, self.tempDPlot, self.tempDLabel, self.tempDValue),
+                        dataChannel('tempE', 'temp_log', 'Temp Sensor E', 0.0, self.tempEPlot, self.tempELabel, self.tempEValue),
+                        dataChannel('tempF', 'temp_log', 'Temp Sensor F', 0.0, self.tempFPlot, self.tempFLabel, self.tempFValue),
+                        dataChannel('tempG', 'temp_log', 'Temp Sensor G', 0.0, self.tempGPlot, self.tempGLabel, self.tempGValue)]
+        
+        # initializes graphs
+        for channel in tempChannels:
+            channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
 
 
     def updateUI(self):
@@ -59,13 +73,14 @@ class mainApp(QMainWindow):
         cur.execute("SELECT timestamp FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
         tempTimestamps = cur.fetchall()
         
-        for plot in tempPlots:
-            cur.execute(f"SELECT {plot[0]} FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
+        for channel in tempChannels:
+            cur.execute(f"SELECT {channel.dbName} FROM {channel.dbTable} WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
             tempValues = cur.fetchall()
         
-            plot[1].clear()
-            plot[1].setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-            plot[1].plot(tempTimestamps, tempValues, pen="b")
+            channel.plot.clear()
+            channel.plot.plot(tempTimestamps, tempValues, pen="b")
+            
+            channel.currentValueDisplay.setText(f'{channel.currentValue} C')
             
         # plots chiller temperature
         
@@ -145,7 +160,7 @@ def QDateTimeFromTimestamp(timestamp):
 class getTemp(QThread):
     def run(self):
 
-        global currentTemps
+        global tempChannels
         timeRecieved = None
         
         tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
@@ -161,13 +176,8 @@ class getTemp(QThread):
                 tempValuesStr = input.split(';')
                 tempValuesStr.pop()
                 
-                currentTemps = {'tempA': float(tempValuesStr[0]), 
-                                'tempB': float(tempValuesStr[1]), 
-                                'tempC': float(tempValuesStr[2]), 
-                                'tempD': float(tempValuesStr[3]), 
-                                'tempE': float(tempValuesStr[4]), 
-                                'tempF': float(tempValuesStr[5]), 
-                                'tempG': float(tempValuesStr[6])}
+                for channel, i in tempChannels, range(len(tempValuesStr)):
+                    channel.currentValue = tempValuesStr[i]
                 
                 db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                            (timeRecieved, currentTemps['tempA'], currentTemps['tempB'], currentTemps['tempC'], currentTemps['tempD'], currentTemps['tempE'], currentTemps['tempF'], currentTemps['tempG']))
@@ -201,6 +211,17 @@ class getChillerData(QThread):
                 db.commit()
                 
             time.sleep(.1)
+            
+@dataclass       
+class dataChannel:
+    dbName: str
+    dbTable: str
+    label: str
+    currentValue: float = 0.0
+    plot: any = None
+    labelDisplay: any = None
+    currentValueDisplay: any = None
+
 
 if __name__ == '__main__':
     
@@ -214,6 +235,8 @@ if __name__ == '__main__':
         'tempF': 0.0,
         'tempG': 0.0,
     }
+    
+    
     
     currentChillerValues = {
         'bath_temp': 0.0,
