@@ -205,14 +205,21 @@ def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M
     global db
     
     # closes database if one currently is open
+    if (isDBOpen()):
+        db.close()
+        
+    db = sqlite3.connect(filepath, check_same_thread=False)
+    
+# returns true if a database file is open, false otherwise
+def isDBOpen():
+    global db
     try:
         if (db):
-            db.close()
-            print("Closing existing db file")
+            return True
+        else:
+            return False
     except NameError:
-        print("No db file exists to close")
-
-    db = sqlite3.connect(filepath, check_same_thread=False)
+        return False
 
 
 if __name__ == '__main__':
