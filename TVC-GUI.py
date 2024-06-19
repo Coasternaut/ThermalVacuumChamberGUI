@@ -137,8 +137,8 @@ class mainApp(QMainWindow):
         for channel in tempChannels:
             if (channel.renameLabel.text()):
                 db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
-        
-        db.commit()
+                db.commit()
+
         self.updateLabels()
         
     def updateLabels(self):
