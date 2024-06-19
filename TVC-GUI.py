@@ -135,8 +135,8 @@ class mainApp(QMainWindow):
         for channel in tempChannels:
             if (channel.renameLabel.text()):
                 db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
-        
-        db.commit()
+                db.commit()
+
         self.updateLabels()
         
     def updateLabels(self):
@@ -149,10 +149,12 @@ class mainApp(QMainWindow):
                 cur.row_factory = lambda cursor, row: row[0]
                 
                 cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
-                channel.label = cur.fetchone()
-
-                channel.labelDisplay.setText(channel.label)
-                channel.renameLabel.setPlaceholderText(channel.label)
+                newLabel = cur.fetchone()
+                if (newLabel):
+                    channel.label = newLabel
+                    channel.labelDisplay.setText(channel.label)
+                    channel.renameLabel.setPlaceholderText(channel.label)
+                    channel.renameLabel.clear()
         
         
             
