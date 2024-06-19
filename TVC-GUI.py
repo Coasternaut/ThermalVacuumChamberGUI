@@ -12,7 +12,7 @@ class mainApp(QMainWindow):
 
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
-        self.displayTimeBox.currentTextChanged.connect(self.updateUI)
+        self.displayTimeBox.currentTextChanged.connect(self.updateTimeRangeMode)
         
         self.renameButton.pressed.connect(self.saveLabels)
         
@@ -44,22 +44,25 @@ class mainApp(QMainWindow):
 
         self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         
-        self.selectionMode = 'hours'
+        self.timeRangeMode = 'hours'
 
 
     def updateUI(self):
-         # calculates the time range displayed on the graphs TODO implement
-         
-        currentRangeSelection = self.displayTimeBox.currentIndex()
+         # calculates the time range displayed on the graph
         
+        # last # hours
+        if (self.timeRangeMode == 'hours'):
+            endGraphTimestamp = time.time()
+            beginGraphTimestamp = time.time() - (self.hoursBox.value() * 3600) # 3600 sec/hr
         # Full time
-        if (currentRangeSelection == 0):
+        elif (self.timeRangeMode == 'full'):
             endGraphTimestamp = 2**32 # a really big number
             beginGraphTimestamp = 0
-        # last 30 mins
-        elif (currentRangeSelection == 1):
-            endGraphTimestamp = time.time()
-            beginGraphTimestamp = time.time() - (30 * 60) 
+        # custom range
+        elif(self.timeRangeMode == 'range'):
+            endGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
+            beginGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
+         
         
         cur = db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
@@ -122,9 +125,12 @@ class mainApp(QMainWindow):
     def openDatabaseFile(self): 
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
         openDB(openFilePath[0])
-        
-        self.updateUI()
+
         self.updateLabels()
+
+        # displays full range
+        self.displayTimeBox.setCurrentIndex(1)
+        self.updateTimeRangeMode() # also calls updateUI
     
     def saveLabels(self):
         global db
@@ -150,18 +156,23 @@ class mainApp(QMainWindow):
                 cur = db.cursor()
                 cur.row_factory = lambda cursor, row: row[0]
                 
-                cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
-                channel.label = cur.fetchone()
+                try:
+                    cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
+                except sqlite3.OperationalError as e:
+                    if str(e) != "no such table: labels":
+                        raise
+                    else:
+                        channel.label = cur.fetchone()
 
-                channel.labelDisplay.setText(channel.label)
-                channel.renameLabel.setPlaceholderText(channel.label)
+                        channel.labelDisplay.setText(channel.label)
+                        channel.renameLabel.setPlaceholderText(channel.label)
                 
-    def updateSelectionMode(self):
+    def updateTimeRangeMode(self):
         selection = self.displayTimeBox.currentIndex()
         
         # Last # hours
         if (selection == 0):
-            self.selectionMode = 'hours'
+            self.timeRangeMode = 'hours'
             
             self.hoursLabel.setEnabled(True)
             self.hoursBox.setEnabled(True)
@@ -172,7 +183,7 @@ class mainApp(QMainWindow):
             self.dateTimeEditEnd.setEnabled(False)
         # Full time
         if (selection == 1):
-            self.selectionMode = 'full'
+            self.timeRangeMode = 'full'
             
             self.hoursLabel.setEnabled(False)
             self.hoursBox.setEnabled(False)
@@ -183,7 +194,7 @@ class mainApp(QMainWindow):
             self.dateTimeEditEnd.setEnabled(False)
         # Custom range
         elif (selection == 2):
-            self.selectionMode = 'range'
+            self.timeRangeMode = 'range'
             
             self.hoursLabel.setEnabled(False)
             self.hoursBox.setEnabled(False)
@@ -193,7 +204,7 @@ class mainApp(QMainWindow):
             self.dateTimeEditBegin.setEnabled(True)
             self.dateTimeEditEnd.setEnabled(True)
         
-        
+        self.updateUI()
             
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
