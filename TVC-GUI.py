@@ -99,17 +99,7 @@ class mainApp(QMainWindow):
     def startLogging(self):
         global db
         
-        # closes database if one currently is open
-        try:
-            if (db):
-                db.close()
-                print("Closing existing db file")
-        except NameError:
-            print("No db file exists to close")
-            
-        # creates new database file
-        dbPath = f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'
-        db = sqlite3.connect(dbPath, check_same_thread=False)
+        openDB() # creates new database file
         
         db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
         db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
@@ -125,22 +115,12 @@ class mainApp(QMainWindow):
         self.getTempThread.quit()
         
     # imports stored data from a database file
-    def openDatabaseFile(self):
-        global db
-        
-        # closes database if one currently is open
-        try:
-            if (db):
-                db.close()
-                print("Closing existing db file")
-        except NameError:
-            print("No db file exists to close")
-            
+    def openDatabaseFile(self): 
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
-        db = sqlite3.connect(openFilePath[0], check_same_thread=False)
+        openDB(openFilePath)
         
-        print('Database file opened')
         self.updateUI()
+        
             
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
@@ -220,6 +200,19 @@ class dataChannel:
     plot: any = None
     labelDisplay: any = None
     currentValueDisplay: any = None
+    
+def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
+    global db
+    
+    # closes database if one currently is open
+    try:
+        if (db):
+            db.close()
+            print("Closing existing db file")
+    except NameError:
+        print("No db file exists to close")
+
+    db = sqlite3.connect(filepath, check_same_thread=False)
 
 
 if __name__ == '__main__':
