@@ -45,22 +45,48 @@ class mainApp(QMainWindow):
         cur = db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
         
+        #list of all temp graph objects
+        tempPlots  = [
+        ('tempA', self.tempAPlot),
+        ('tempB', self.tempBPlot),
+        ('tempC', self.tempCPlot),
+        ('tempD', self.tempDPlot),
+        ('tempE', self.tempEPlot),
+        ('tempF', self.tempFPlot),
+        ('tempG', self.tempGPlot),
+        ]
         
-        #plots tempA
+        #plots temperatures
         cur.execute("SELECT timestamp FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        timestamps = cur.fetchall()
+        tempTimestamps = cur.fetchall()
         
-        cur.execute("SELECT tempA FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        tempAValues = cur.fetchall()
+        for plot in tempPlots:
+            cur.execute(f"SELECT {plot[0]} FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
+            tempValues = cur.fetchall()
         
+            plot[1].clear()
+            plot[1].setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+            plot[1].plot(tempTimestamps, tempValues, pen="b")
+            
+        # plots chiller temperature
         
-        self.tempPlot.clear()
-        self.tempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-        self.tempPlot.plot(timestamps, tempAValues, pen="b")
+        cur.execute("SELECT timestamp FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
+        chillerTimestamps = cur.fetchall()
+        
+        cur.execute("SELECT bath_temp FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
+        chillerBathTemps = cur.fetchall()
+        
+        cur.execute("SELECT temp_setpoint FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
+        chillerSetpointTemps = cur.fetchall()
+        
+        self.chillerTempPlot.clear()
+        self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        self.chillerTempPlot.plot(chillerTimestamps, chillerBathTemps, pen="b")
+        self.chillerTempPlot.plot(chillerTimestamps, chillerSetpointTemps, pen="g")
         
         #updates end display time
-        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(timestamps[0]))
-        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(timestamps[-1]))
+        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(tempTimestamps[0]))
+        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(tempTimestamps[-1]))
         
         
     # starts logging and graphing data
@@ -106,7 +132,8 @@ class mainApp(QMainWindow):
             
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
         db = sqlite3.connect(openFilePath[0], check_same_thread=False)
-            
+        
+        print('Database file opened')
         self.updateUI()
             
 # Converts a epoch timestamp (float) to a QDateTime object
