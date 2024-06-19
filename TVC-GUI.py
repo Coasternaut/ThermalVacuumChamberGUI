@@ -14,6 +14,8 @@ class mainApp(QMainWindow):
         self.stopButton.pressed.connect(self.stopLogging)
         self.displayTimeBox.currentTextChanged.connect(self.updateUI)
         
+        self.renameButton.pressed.connect(self.saveLabels)
+        
         # self.actionSave.triggered.connect(saveData) TODO implement export function
         self.actionOpen.triggered.connect(self.openDatabaseFile)
         
@@ -28,13 +30,13 @@ class mainApp(QMainWindow):
         self.getChillerDataThread = getChillerData()
         
         global tempChannels 
-        tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue),
-                        dataChannel('tempB', 'temp_log', 'Temp Sensor B', 0.0, self.tempBPlot, self.tempBLabel, self.tempBValue),
-                        dataChannel('tempC', 'temp_log', 'Temp Sensor C', 0.0, self.tempCPlot, self.tempCLabel, self.tempCValue),
-                        dataChannel('tempD', 'temp_log', 'Temp Sensor D', 0.0, self.tempDPlot, self.tempDLabel, self.tempDValue),
-                        dataChannel('tempE', 'temp_log', 'Temp Sensor E', 0.0, self.tempEPlot, self.tempELabel, self.tempEValue),
-                        dataChannel('tempF', 'temp_log', 'Temp Sensor F', 0.0, self.tempFPlot, self.tempFLabel, self.tempFValue),
-                        dataChannel('tempG', 'temp_log', 'Temp Sensor G', 0.0, self.tempGPlot, self.tempGLabel, self.tempGValue)]
+        tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
+                        dataChannel('tempB', 'temp_log', 'Temp Sensor B', 0.0, self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
+                        dataChannel('tempC', 'temp_log', 'Temp Sensor C', 0.0, self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
+                        dataChannel('tempD', 'temp_log', 'Temp Sensor D', 0.0, self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
+                        dataChannel('tempE', 'temp_log', 'Temp Sensor E', 0.0, self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
+                        dataChannel('tempF', 'temp_log', 'Temp Sensor F', 0.0, self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
+                        dataChannel('tempG', 'temp_log', 'Temp Sensor G', 0.0, self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename)]
         
         # initializes graphs
         for channel in tempChannels:
@@ -117,9 +119,39 @@ class mainApp(QMainWindow):
     # imports stored data from a database file
     def openDatabaseFile(self): 
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
-        openDB(openFilePath)
+        openDB(openFilePath[0])
         
         self.updateUI()
+        self.updateLabels()
+    
+    def saveLabels(self):
+        global db
+        
+        if (not isDBOpen()):
+            openDB()
+            
+        db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
+        
+        for channel in tempChannels:
+            db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
+        
+        db.commit()
+        self.updateLabels()
+        
+    def updateLabels(self):
+        global db
+        
+        if (isDBOpen()):
+            for channel in tempChannels:
+                
+                cur = db.cursor()
+                cur.row_factory = lambda cursor, row: row[0]
+                
+                cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
+                channel.label = cur.fetchone()
+
+                channel.labelDisplay.setText(channel.label)
+        
         
             
 # Converts a epoch timestamp (float) to a QDateTime object
@@ -200,6 +232,7 @@ class dataChannel:
     plot: any = None
     labelDisplay: any = None
     currentValueDisplay: any = None
+    renameLabel: any = None
     
 def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
     global db
