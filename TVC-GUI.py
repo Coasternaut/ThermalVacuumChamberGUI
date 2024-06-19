@@ -43,6 +43,8 @@ class mainApp(QMainWindow):
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
 
         self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        
+        self.selectionMode = 'hours'
 
 
     def updateUI(self):
@@ -153,6 +155,43 @@ class mainApp(QMainWindow):
 
                 channel.labelDisplay.setText(channel.label)
                 channel.renameLabel.setPlaceholderText(channel.label)
+                
+    def updateSelectionMode(self):
+        selection = self.displayTimeBox.currentIndex()
+        
+        # Last # hours
+        if (selection == 0):
+            self.selectionMode = 'hours'
+            
+            self.hoursLabel.setEnabled(True)
+            self.hoursBox.setEnabled(True)
+            
+            self.displayBeginningLabel.setEnabled(False)
+            self.displayEndLabel.setEnabled(False)
+            self.dateTimeEditBegin.setEnabled(False)
+            self.dateTimeEditEnd.setEnabled(False)
+        # Full time
+        if (selection == 1):
+            self.selectionMode = 'full'
+            
+            self.hoursLabel.setEnabled(False)
+            self.hoursBox.setEnabled(False)
+            
+            self.displayBeginningLabel.setEnabled(False)
+            self.displayEndLabel.setEnabled(False)
+            self.dateTimeEditBegin.setEnabled(False)
+            self.dateTimeEditEnd.setEnabled(False)
+        # Custom range
+        elif (selection == 2):
+            self.selectionMode = 'range'
+            
+            self.hoursLabel.setEnabled(False)
+            self.hoursBox.setEnabled(False)
+            
+            self.displayBeginningLabel.setEnabled(True)
+            self.displayEndLabel.setEnabled(True)
+            self.dateTimeEditBegin.setEnabled(True)
+            self.dateTimeEditEnd.setEnabled(True)
         
         
             
