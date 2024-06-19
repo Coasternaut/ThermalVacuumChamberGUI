@@ -1,9 +1,8 @@
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QMainWindow, QDial, QFileDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
-import sys, time, datetime, random, sqlite3, serial
-import pandas as pd
+import sys, time, datetime, sqlite3, serial
 
 class mainApp(QMainWindow):
     def __init__(self):
