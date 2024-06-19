@@ -133,7 +133,8 @@ class mainApp(QMainWindow):
         db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
         for channel in tempChannels:
-            db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
+            if (channel.renameLabel.text()):
+                db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
         
         db.commit()
         self.updateLabels()
@@ -151,6 +152,7 @@ class mainApp(QMainWindow):
                 channel.label = cur.fetchone()
 
                 channel.labelDisplay.setText(channel.label)
+                channel.renameLabel.setPlaceholderText(channel.label)
         
         
             

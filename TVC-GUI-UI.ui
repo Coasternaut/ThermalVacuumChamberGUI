@@ -612,6 +612,9 @@
        <item row="0" column="1">
         <widget class="QLineEdit" name="tempARename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor A</string>
          </property>
         </widget>
@@ -626,6 +629,9 @@
        <item row="1" column="1">
         <widget class="QLineEdit" name="tempBRename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor B</string>
          </property>
         </widget>
@@ -643,6 +649,9 @@
           <bool>true</bool>
          </property>
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor C</string>
          </property>
         </widget>
@@ -657,6 +666,9 @@
        <item row="3" column="1">
         <widget class="QLineEdit" name="tempDRename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor D</string>
          </property>
         </widget>
@@ -664,13 +676,16 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string> E:</string>
+          <string>E:</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
         <widget class="QLineEdit" name="tempERename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor E</string>
          </property>
         </widget>
@@ -685,6 +700,9 @@
        <item row="5" column="1">
         <widget class="QLineEdit" name="tempFRename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor F</string>
          </property>
         </widget>
@@ -699,6 +717,9 @@
        <item row="6" column="1">
         <widget class="QLineEdit" name="tempGRename">
          <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
           <string>Temp Sensor G</string>
          </property>
         </widget>
