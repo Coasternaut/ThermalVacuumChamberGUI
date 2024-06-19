@@ -40,6 +40,8 @@ class mainApp(QMainWindow):
         for channel in tempChannels:
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
 
+        self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+
 
     def updateUI(self):
          # calculates the time range displayed on the graphs TODO implement
@@ -57,17 +59,7 @@ class mainApp(QMainWindow):
         
         cur = db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
-        
-        #list of all temp graph objects
-        tempPlots  = [
-        ('tempA', self.tempAPlot),
-        ('tempB', self.tempBPlot),
-        ('tempC', self.tempCPlot),
-        ('tempD', self.tempDPlot),
-        ('tempE', self.tempEPlot),
-        ('tempF', self.tempFPlot),
-        ('tempG', self.tempGPlot),
-        ]
+
         
         #plots temperatures
         cur.execute("SELECT timestamp FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
@@ -94,7 +86,7 @@ class mainApp(QMainWindow):
         chillerSetpointTemps = cur.fetchall()
         
         self.chillerTempPlot.clear()
-        self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+    
         self.chillerTempPlot.plot(chillerTimestamps, chillerBathTemps, pen="b")
         self.chillerTempPlot.plot(chillerTimestamps, chillerSetpointTemps, pen="g")
         
@@ -176,11 +168,18 @@ class getTemp(QThread):
                 tempValuesStr = input.split(';')
                 tempValuesStr.pop()
                 
-                for channel, i in tempChannels, range(len(tempValuesStr)):
-                    channel.currentValue = tempValuesStr[i]
+                for i in range(len(tempValuesStr)):
+                    tempChannels[i].currentValue = float(tempValuesStr[i])
                 
                 db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                           (timeRecieved, currentTemps['tempA'], currentTemps['tempB'], currentTemps['tempC'], currentTemps['tempD'], currentTemps['tempE'], currentTemps['tempF'], currentTemps['tempG']))
+                           (timeRecieved,
+                            tempChannels[0].currentValue,
+                            tempChannels[1].currentValue,
+                            tempChannels[2].currentValue,
+                            tempChannels[3].currentValue,
+                            tempChannels[4].currentValue,
+                            tempChannels[5].currentValue,
+                            tempChannels[6].currentValue))
                 db.commit()
 
                 time.sleep(0.1)
@@ -224,19 +223,6 @@ class dataChannel:
 
 
 if __name__ == '__main__':
-    
-    # intilized data storage for live display
-    currentTemps = {
-        'tempA': 0.0,
-        'tempB': 0.0,
-        'tempC': 0.0,
-        'tempD': 0.0,
-        'tempE': 0.0,
-        'tempF': 0.0,
-        'tempG': 0.0,
-    }
-    
-    
     
     currentChillerValues = {
         'bath_temp': 0.0,
