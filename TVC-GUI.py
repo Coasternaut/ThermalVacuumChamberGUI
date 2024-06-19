@@ -70,7 +70,7 @@ class mainApp(QMainWindow):
             tempValues = cur.fetchall()
         
             channel.plot.clear()
-            channel.plot.plot(tempTimestamps, tempValues, pen="b")
+            channel.plot.plot(tempTimestamps, tempValues, pen="r")
             
             channel.currentValueDisplay.setText(f'{channel.currentValue} C')
             
@@ -87,7 +87,7 @@ class mainApp(QMainWindow):
         
         self.chillerTempPlot.clear()
     
-        self.chillerTempPlot.plot(chillerTimestamps, chillerBathTemps, pen="b")
+        self.chillerTempPlot.plot(chillerTimestamps, chillerBathTemps, pen="r")
         self.chillerTempPlot.plot(chillerTimestamps, chillerSetpointTemps, pen="g")
         
         #updates end display time
