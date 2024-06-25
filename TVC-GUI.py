@@ -150,8 +150,6 @@ class mainApp(QMainWindow):
         db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
         
         # starts threads to gather data and timer to refresh UI
-        self.getTempThread.start()
-        self.getChillerDataThread.start()
         self.updateUITimer.start()
 
     # stops logging data TODO make thread stop
