@@ -45,9 +45,27 @@ class mainApp(QMainWindow):
         self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         
         self.timeRangeMode = 'hours'
+        
+        self.chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
 
 
     def updateUI(self):
+        # get bath temp
+        self.chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
+        currentChillerValues['bath_temp'] = float(self.chillerSerial.readline().decode('ascii'))
+        
+        # get pump pressure
+        self.chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
+        currentChillerValues['pump_pres'] = float(self.chillerSerial.readline().decode('ascii'))
+        
+        # get temperature setpoint
+        self.chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
+        currentChillerValues['temp_setpoint'] = float(self.chillerSerial.readline().decode('ascii'))
+
+        lastUpdateTime = time.time()
+        db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
+                    (lastUpdateTime, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
+        db.commit()
          # calculates the time range displayed on the graph
         
         # last # hours
@@ -248,33 +266,6 @@ class getTemp(QThread):
 
                 time.sleep(0.1)
                 
-class getChillerData(QThread):
-    def run(self):
-        global currentChillerValues
-        
-        chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
-        lastUpdateTime = time.time() - .9 # makes loop run on first time
-        while self.isRunning():
-            if (time.time() > lastUpdateTime + 0.8):
-                # get bath temp
-                chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
-                currentChillerValues['bath_temp'] = float(chillerSerial.readline().decode('ascii'))
-                
-                # get pump pressure
-                chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
-                currentChillerValues['pump_pres'] = float(chillerSerial.readline().decode('ascii'))
-                
-                # get temperature setpoint
-                chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
-                currentChillerValues['temp_setpoint'] = float(chillerSerial.readline().decode('ascii'))
-
-                lastUpdateTime = time.time()
-                db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
-                           (lastUpdateTime, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
-                db.commit()
-                
-            time.sleep(.1)
-            
 @dataclass       
 class dataChannel:
     dbName: str
