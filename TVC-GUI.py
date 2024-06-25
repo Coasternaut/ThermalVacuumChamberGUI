@@ -26,9 +26,6 @@ class mainApp(QMainWindow):
         self.updateUITimer.setInterval(1000)
         self.updateUITimer.timeout.connect(self.updateUI)
         
-        self.getTempThread = getTemp()
-        self.getChillerDataThread = getChillerData()
-        
         global tempChannels 
         tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
                         dataChannel('tempB', 'temp_log', 'Temp Sensor B', 0.0, self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
@@ -46,10 +43,33 @@ class mainApp(QMainWindow):
         
         self.timeRangeMode = 'hours'
         
+        self.tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
         self.chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
 
 
     def updateUI(self):
+        timestamp = time.time()
+        # gets temp data
+        input = self.tempSerial.readline().decode('ascii')
+                
+        # converts data string into list of floats
+        tempValuesStr = input.split(';')
+        tempValuesStr.pop()
+        
+        for i in range(len(tempValuesStr)):
+            tempChannels[i].currentValue = float(tempValuesStr[i])
+        
+        db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (timestamp,
+                    tempChannels[0].currentValue,
+                    tempChannels[1].currentValue,
+                    tempChannels[2].currentValue,
+                    tempChannels[3].currentValue,
+                    tempChannels[4].currentValue,
+                    tempChannels[5].currentValue,
+                    tempChannels[6].currentValue))
+        db.commit()
+        
         # get bath temp
         self.chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
         currentChillerValues['bath_temp'] = float(self.chillerSerial.readline().decode('ascii'))
@@ -64,7 +84,7 @@ class mainApp(QMainWindow):
 
         lastUpdateTime = time.time()
         db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
-                    (lastUpdateTime, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
+                    (timestamp, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
         db.commit()
          # calculates the time range displayed on the graph
         
@@ -230,41 +250,6 @@ def QDateTimeFromTimestamp(timestamp):
     dt.setSecsSinceEpoch(round(timestamp))
     return dt
         
-# gets temperature data from Arduino via USB serial and saves it to a database and dataframe to graph from
-class getTemp(QThread):
-    def run(self):
-
-        global tempChannels
-        timeRecieved = None
-        
-        tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-        
-        
-        startTime = time.time()
-        while self.isRunning():
-                input = tempSerial.readline().decode('ascii')
-                timeRecieved = time.time()
-                elapsedTime = timeRecieved - startTime
-                
-                # converts data string into list of floats
-                tempValuesStr = input.split(';')
-                tempValuesStr.pop()
-                
-                for i in range(len(tempValuesStr)):
-                    tempChannels[i].currentValue = float(tempValuesStr[i])
-                
-                db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                           (timeRecieved,
-                            tempChannels[0].currentValue,
-                            tempChannels[1].currentValue,
-                            tempChannels[2].currentValue,
-                            tempChannels[3].currentValue,
-                            tempChannels[4].currentValue,
-                            tempChannels[5].currentValue,
-                            tempChannels[6].currentValue))
-                db.commit()
-
-                time.sleep(0.1)
                 
 @dataclass       
 class dataChannel:
