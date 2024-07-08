@@ -154,8 +154,9 @@ class mainApp(QMainWindow):
         self.chillerTempPlot.plot(chillerTimestamps, chillerSetpointTemps, pen="g")
         
         #updates end display time
-        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(tempTimestamps[0]))
-        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(tempTimestamps[-1]))
+        if tempTimestamps:
+            self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(tempTimestamps[0]))
+            self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(tempTimestamps[-1]))
         
         
     # starts logging and graphing data
