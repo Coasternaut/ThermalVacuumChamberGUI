@@ -75,22 +75,28 @@ class mainApp(QMainWindow):
         validChillerData = False
         # get bath temp
         if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
-            currentChillerValues['bath_temp'] = float(getSerialData(self.serialDevices['chiller']))
-            validChillerData = True
+            bathTempInput = getSerialData(self.serialDevices['chiller'])
+            if bathTempInput:
+                currentChillerValues['bath_temp'] = float(bathTempInput)
+                validChillerData = True
         else:
             currentChillerValues['bath_temp'] = None
         
         # get pump pressure
         if writeSerialData(self.serialDevices['chiller'],'in_pv_05\r'):
-            currentChillerValues['pump_pres'] = float(getSerialData(self.serialDevices['chiller']))
-            validChillerData = True
+            pumpPressureInput = getSerialData(self.serialDevices['chiller'])
+            if pumpPressureInput:
+                currentChillerValues['pump_pres'] = float(pumpPressureInput)
+                validChillerData = True
         else:
             currentChillerValues['pump_pres'] = None
         
         # get temperature setpoint
         if writeSerialData(self.serialDevices['chiller'],'in_sp_00\r'):
-            currentChillerValues['temp_setpoint'] = float(getSerialData(self.serialDevices['chiller']))
-            validChillerData = True
+            tempSetpointInput = getSerialData(self.serialDevices['chiller'])
+            if tempSetpointInput:
+                currentChillerValues['temp_setpoint'] = float(tempSetpointInput)
+                validChillerData = True
         else:
             currentChillerValues['temp_setpoint'] = None
 
