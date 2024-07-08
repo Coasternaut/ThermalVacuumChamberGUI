@@ -48,6 +48,10 @@ class mainApp(QMainWindow):
             'chiller': serialDevice('AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True))
         }
 
+        # reads from each device to initialize COM port
+        for device in self.serialDevices.values():
+            getSerialData(device)
+
     def updateUI(self):
         timestamp = time.time()
         # gets temp data
@@ -336,6 +340,7 @@ def writeSerialData(serialDevice, dataString):
                 serialDevice.connectionObject.close()
                 serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
                 serialDevice.connectionObject.open()
+                serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
         except serial.SerialException:
             # print('Failed to reopen connection and write data')
             return False
