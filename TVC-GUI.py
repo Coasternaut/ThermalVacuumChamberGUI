@@ -337,7 +337,7 @@ def writeSerialData(serialDevice, dataString):
                 serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
                 serialDevice.connectionObject.open()
         except serial.SerialException:
-            print('Failed to reopen connection and write data')
+            # print('Failed to reopen connection and write data')
             return False
 
 
