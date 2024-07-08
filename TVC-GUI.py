@@ -6,11 +6,6 @@ import sys, time, datetime, sqlite3
 import serial, serial.serialutil, serial.tools, serial.tools.list_ports
 from dataclasses import dataclass
 
-# serial numbers for serial input devices
-tempArduinoSN = 'D12A5A1851544B5933202020FF080B15'
-chillerRS232SN = ''
-presRS485SN = 'B001YA5C'
-
 class mainApp(QMainWindow):
     def __init__(self):
         super().__init__()
