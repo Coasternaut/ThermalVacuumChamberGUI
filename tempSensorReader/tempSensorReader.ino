@@ -1,7 +1,7 @@
 const uint8_t TEMP_PINS[] = {A0, A1, A2, A3, A4, A5, A6}; //['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
 const int NUM_SENSORS = 7;
 
-const float aref_voltage = 3.305;
+const float aref_voltage = 3.285;
 
 void setup() {
   Serial.begin(9600);
