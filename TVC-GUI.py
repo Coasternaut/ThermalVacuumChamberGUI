@@ -5,6 +5,11 @@ import pyqtgraph as pg
 import sys, time, datetime, sqlite3, serial
 from dataclasses import dataclass
 
+# serial numbers for serial input devices
+tempArduinoSN = 'D12A5A1851544B5933202020FF080B15'
+chillerRS232SN = ''
+presRS485SN = 'B001YA5C'
+
 class mainApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -42,15 +47,15 @@ class mainApp(QMainWindow):
         self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         
         self.timeRangeMode = 'hours'
-        
-        self.tempSerial = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-        self.chillerSerial = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
-
+        self.serialDevices  = {
+            'temp': serialDevice('D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
+            'chiller': serialDevice('AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True))
+        }
 
     def updateUI(self):
         timestamp = time.time()
         # gets temp data
-        input = self.tempSerial.readline().decode('ascii')
+        input = getSerialData(self.serialDevices['temp'])
                 
         # converts data string into list of floats
         tempValuesStr = input.split(';')
@@ -70,16 +75,16 @@ class mainApp(QMainWindow):
                     tempChannels[6].currentValue))
         
         # get bath temp
-        self.chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
-        currentChillerValues['bath_temp'] = float(self.chillerSerial.readline().decode('ascii'))
+        writeSerialData(self.serialDevices['chiller'],'in_pv_00\r')
+        currentChillerValues['bath_temp'] = float(getSerialData(self.serialDevices['chiller']))
         
         # get pump pressure
-        self.chillerSerial.write(bytes('in_pv_05\r', 'ascii'))
-        currentChillerValues['pump_pres'] = float(self.chillerSerial.readline().decode('ascii'))
+        writeSerialData(self.serialDevices['chiller'],'in_pv_05\r')
+        currentChillerValues['pump_pres'] = float(getSerialData(self.serialDevices['chiller']))
         
         # get temperature setpoint
-        self.chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
-        currentChillerValues['temp_setpoint'] = float(self.chillerSerial.readline().decode('ascii'))
+        writeSerialData(self.serialDevices['chiller'],'in_sp_00\r')
+        currentChillerValues['temp_setpoint'] = float(getSerialData(self.serialDevices['chiller']))
 
         db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
                     (timestamp, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
@@ -258,6 +263,11 @@ class dataChannel:
     currentValueDisplay: any = None
     renameLabel: any = None
     
+@dataclass
+class serialDevice:
+    serialNumber: str
+    connectionObject: serial.Serial
+    
 def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
     global db
     
@@ -277,6 +287,35 @@ def isDBOpen():
             return False
     except NameError:
         return False
+    
+def getDevicePath(serialNumber):
+    for port in serial.tools.list_ports.comports():
+        if port.serial_number == serialNumber:
+            return port.device
+    
+    return None
+
+def getSerialData(serialDevice):
+    try:
+        return serialDevice.connectionObject.readline().decode('ascii')
+    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
+        try:
+                serialDevice.connectionObject.close()
+                serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
+                serialDevice.connectionObject.open()
+        except serial.SerialException:
+            return None
+        
+def writeSerialData(serialDevice, dataString):
+    try:
+        serialDevice.write(bytes(dataString, 'ascii'))
+    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
+        try:
+                serialDevice.connectionObject.close()
+                serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
+                serialDevice.connectionObject.open()
+        except serial.SerialException:
+            print('Failed to reopen connection and write data')
 
 
 if __name__ == '__main__':
