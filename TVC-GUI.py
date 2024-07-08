@@ -306,7 +306,11 @@ def getDevicePath(serialNumber):
 
 def getSerialData(serialDevice):
     try:
-        return serialDevice.connectionObject.readline().decode('ascii')
+        data = serialDevice.connectionObject.readline().decode('ascii')
+        if data:
+            return data
+        else:
+            return None
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
                 serialDevice.connectionObject.close()
@@ -318,7 +322,7 @@ def getSerialData(serialDevice):
 # returns True if successful, False otherwise
 def writeSerialData(serialDevice, dataString):
     try:
-        serialDevice.write(bytes(dataString, 'ascii'))
+        serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
         return True
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
