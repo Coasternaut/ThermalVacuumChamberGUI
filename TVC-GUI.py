@@ -51,38 +51,51 @@ class mainApp(QMainWindow):
     def updateUI(self):
         timestamp = time.time()
         # gets temp data
-        input = getSerialData(self.serialDevices['temp'])
-                
-        # converts data string into list of floats
-        tempValuesStr = input.split(';')
-        tempValuesStr.pop()
+        tempData = getSerialData(self.serialDevices['temp'])
         
-        for i in range(len(tempValuesStr)):
-            tempChannels[i].currentValue = float(tempValuesStr[i])
+        # if temp data exists
+        if tempData:
+            # converts data string into list of floats
+            tempValuesStr = tempData.split(';')
+            tempValuesStr.pop()
+            
+            for i in range(len(tempValuesStr)):
+                tempChannels[i].currentValue = float(tempValuesStr[i])
+            
+            db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        (timestamp,
+                        tempChannels[0].currentValue,
+                        tempChannels[1].currentValue,
+                        tempChannels[2].currentValue,
+                        tempChannels[3].currentValue,
+                        tempChannels[4].currentValue,
+                        tempChannels[5].currentValue,
+                        tempChannels[6].currentValue))
         
-        db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (timestamp,
-                    tempChannels[0].currentValue,
-                    tempChannels[1].currentValue,
-                    tempChannels[2].currentValue,
-                    tempChannels[3].currentValue,
-                    tempChannels[4].currentValue,
-                    tempChannels[5].currentValue,
-                    tempChannels[6].currentValue))
-        
+        validChillerData = False
         # get bath temp
-        writeSerialData(self.serialDevices['chiller'],'in_pv_00\r')
-        currentChillerValues['bath_temp'] = float(getSerialData(self.serialDevices['chiller']))
+        if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
+            currentChillerValues['bath_temp'] = float(getSerialData(self.serialDevices['chiller']))
+            validChillerData = True
+        else:
+            currentChillerValues['bath_temp'] = None
         
         # get pump pressure
-        writeSerialData(self.serialDevices['chiller'],'in_pv_05\r')
-        currentChillerValues['pump_pres'] = float(getSerialData(self.serialDevices['chiller']))
+        if writeSerialData(self.serialDevices['chiller'],'in_pv_05\r'):
+            currentChillerValues['pump_pres'] = float(getSerialData(self.serialDevices['chiller']))
+            validChillerData = True
+        else:
+            currentChillerValues['pump_pres'] = None
         
         # get temperature setpoint
-        writeSerialData(self.serialDevices['chiller'],'in_sp_00\r')
-        currentChillerValues['temp_setpoint'] = float(getSerialData(self.serialDevices['chiller']))
+        if writeSerialData(self.serialDevices['chiller'],'in_sp_00\r'):
+            currentChillerValues['temp_setpoint'] = float(getSerialData(self.serialDevices['chiller']))
+            validChillerData = True
+        else:
+            currentChillerValues['temp_setpoint'] = None
 
-        db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
+        if validChillerData:
+            db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
                     (timestamp, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
         db.commit()
          # calculates the time range displayed on the graph
@@ -302,9 +315,11 @@ def getSerialData(serialDevice):
         except serial.SerialException:
             return None
         
+# returns True if successful, False otherwise
 def writeSerialData(serialDevice, dataString):
     try:
         serialDevice.write(bytes(dataString, 'ascii'))
+        return True
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
                 serialDevice.connectionObject.close()
@@ -312,6 +327,7 @@ def writeSerialData(serialDevice, dataString):
                 serialDevice.connectionObject.open()
         except serial.SerialException:
             print('Failed to reopen connection and write data')
+            return False
 
 
 if __name__ == '__main__':
