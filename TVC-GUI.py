@@ -68,7 +68,6 @@ class mainApp(QMainWindow):
                     tempChannels[4].currentValue,
                     tempChannels[5].currentValue,
                     tempChannels[6].currentValue))
-        db.commit()
         
         # get bath temp
         self.chillerSerial.write(bytes('in_pv_00\r', 'ascii'))
@@ -82,7 +81,6 @@ class mainApp(QMainWindow):
         self.chillerSerial.write(bytes('in_sp_00\r', 'ascii'))
         currentChillerValues['temp_setpoint'] = float(self.chillerSerial.readline().decode('ascii'))
 
-        lastUpdateTime = time.time()
         db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
                     (timestamp, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
         db.commit()
