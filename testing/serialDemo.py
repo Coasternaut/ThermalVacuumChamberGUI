@@ -17,9 +17,16 @@ def getArduinoPath(paths):
             return path
     return None
 
+def getDevicePath(serialNumber):
+    for port in serial.tools.list_ports.comports():
+        if port.serial_number == serialNumber:
+            return port.device
+        
+    return None
+
 
 try:
-    ser = serial.Serial(getArduinoPath(getOpenPaths()), 9600, timeout=1)
+    ser = serial.Serial(getDevicePath('D12A5A1851544B5933202020FF080B15'), 9600, timeout=1)
     
 except serial.SerialException as e:
     print('no port to open', e)
