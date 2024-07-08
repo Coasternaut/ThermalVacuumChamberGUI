@@ -2,7 +2,8 @@ from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from PyQt6.QtCore import QTimer, QThread, QDateTime
 import pyqtgraph as pg
-import sys, time, datetime, sqlite3, serial
+import sys, time, datetime, sqlite3
+import serial, serial.serialutil, serial.tools, serial.tools.list_ports
 from dataclasses import dataclass
 
 # serial numbers for serial input devices
