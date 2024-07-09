@@ -64,7 +64,7 @@ class mainApp(QMainWindow):
             tempValuesStr.pop()
             
             for i in range(len(tempValuesStr)):
-                tempChannels[i].currentValue = float(tempValuesStr[i])
+                tempChannels[i].currentValue = safeFloat(tempValuesStr[i])
         else:
             for channel in tempChannels:
                 channel.currentValue = None
@@ -73,7 +73,7 @@ class mainApp(QMainWindow):
         if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
             bathTempInput = getSerialData(self.serialDevices['chiller'])
             if bathTempInput:
-                currentChillerValues['bath_temp'] = float(bathTempInput)
+                currentChillerValues['bath_temp'] = safeFloat(bathTempInput)
         else:
             currentChillerValues['bath_temp'] = None
         
@@ -81,7 +81,7 @@ class mainApp(QMainWindow):
         if writeSerialData(self.serialDevices['chiller'],'in_pv_05\r'):
             pumpPressureInput = getSerialData(self.serialDevices['chiller'])
             if pumpPressureInput:
-                currentChillerValues['pump_pres'] = float(pumpPressureInput)
+                currentChillerValues['pump_pres'] = safeFloat(pumpPressureInput)
         else:
             currentChillerValues['pump_pres'] = None
         
@@ -89,7 +89,7 @@ class mainApp(QMainWindow):
         if writeSerialData(self.serialDevices['chiller'],'in_sp_00\r'):
             tempSetpointInput = getSerialData(self.serialDevices['chiller'])
             if tempSetpointInput:
-                currentChillerValues['temp_setpoint'] = float(tempSetpointInput)
+                currentChillerValues['temp_setpoint'] = safeFloat(tempSetpointInput)
         else:
             currentChillerValues['temp_setpoint'] = None
 
@@ -357,6 +357,12 @@ def writeSerialData(serialDevice, dataString):
             # print('Failed to reopen connection and write data')
             return False
 
+# converts a string to a float, returning None if the string is not a number
+def safeFloat(string):
+    try:
+        return float(string)
+    except ValueError:
+        return None
 
 if __name__ == '__main__':
     
