@@ -1,19 +1,16 @@
 import sqlite3, time
 
-dbPath = 'testDB_100.db'
+dbPath = 'test_data/logSyncTime2024-07-09--10-12-15.db'
 
 db = sqlite3.connect(dbPath, check_same_thread=False)
 cur = db.cursor()
 
 maxTime = time.time() + 100
 
-cur.row_factory = lambda cursor, row: row[0]
+#cur.row_factory = lambda cursor, row: row[0]
 
-cur.execute("SELECT timestamp FROM temp_log WHERE timestamp < ?", (maxTime,))
-timestamps = cur.fetchall()
+cur.execute(f"SELECT timestamp, tempA FROM temp_log")
+data = cur.fetchall()
 
-cur.execute("SELECT tempA FROM temp_log WHERE timestamp < ?", (maxTime,))
-temps = cur.fetchall()
-
-print(timestamps)
-print(temps)
+print([d[0] for d in data])
+print([d[1] for d in data])

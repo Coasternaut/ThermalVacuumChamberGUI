@@ -124,42 +124,42 @@ class mainApp(QMainWindow):
          
         
         cur = db.cursor()
-        cur.row_factory = lambda cursor, row: row[0]
+        #cur.row_factory = lambda cursor, row: row[0]
 
         
         #plots temperatures
-        cur.execute("SELECT timestamp FROM temp_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        tempTimestamps = cur.fetchall()
-        
         for channel in tempChannels:
-            cur.execute(f"SELECT {channel.dbName} FROM {channel.dbTable} WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
-            tempValues = cur.fetchall()
+            cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
+                            WHERE timestamp BETWEEN ? AND ? 
+                            AND {channel.dbName} IS NOT NULL""",
+                            (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
+            data = cur.fetchall()
         
             channel.plot.clear()
-            channel.plot.plot(tempTimestamps, tempValues, pen="r")
+            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen="r")
             
             channel.currentValueDisplay.setText(f'{channel.currentValue} C')
             
         # plots chiller temperature
         
-        cur.execute("SELECT timestamp FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        chillerTimestamps = cur.fetchall()
-        
-        cur.execute("SELECT bath_temp FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        chillerBathTemps = cur.fetchall()
-        
-        cur.execute("SELECT temp_setpoint FROM chiller_log WHERE timestamp BETWEEN ? AND ?", (beginGraphTimestamp, endGraphTimestamp))
-        chillerSetpointTemps = cur.fetchall()
+        cur.execute("""SELECT timestamp, bath_temp, temp_setpoint FROM data_log 
+                       WHERE timestamp BETWEEN ? AND ? 
+                       AND bath_temp IS NOT NULL 
+                       AND temp_setpoint IS NOT NULL""", (beginGraphTimestamp, endGraphTimestamp))
+        data = cur.fetchall()
+        chillerTimestamps = [d[0] for d in data]
         
         self.chillerTempPlot.clear()
     
-        self.chillerTempPlot.plot(chillerTimestamps, chillerBathTemps, pen="r")
-        self.chillerTempPlot.plot(chillerTimestamps, chillerSetpointTemps, pen="g")
+        self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
+        self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
         
         #updates end display time
-        if tempTimestamps:
-            self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(tempTimestamps[0]))
-            self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(tempTimestamps[-1]))
+        
+        cur.execute("SELECT MIN(timestamp), MAX(timestamp) FROM data_log")
+        data = cur.fetchall()
+        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(data[0]))
+        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(data[1]))
         
         
     # starts logging and graphing data
