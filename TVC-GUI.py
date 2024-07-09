@@ -18,7 +18,7 @@ class mainApp(QMainWindow):
         
         self.renameButton.pressed.connect(self.saveLabels)
         
-        # self.actionSave.triggered.connect(saveData) TODO implement export function
+        self.actionSave.triggered.connect(self.exportData)
         self.actionOpen.triggered.connect(self.openDatabaseFile)
         
         self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
@@ -194,7 +194,7 @@ class mainApp(QMainWindow):
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
         openDB(openFilePath[0])
 
-        self.updateLabels()
+        self.readDBLabels()
 
         # displays full range
         self.displayTimeBox.setCurrentIndex(1)
@@ -209,28 +209,33 @@ class mainApp(QMainWindow):
         db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
         for channel in tempChannels:
-            if (channel.renameLabel.text()):
-                db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.renameLabel.text()))
-                db.commit()
-
-        self.updateLabels()
+            if channel.renameLabel.text():
+                channel.label = channel.renameLabel.text()
+            db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
+            db.commit()
+            
+            channel.labelDisplay.setText(channel.label)
+            channel.renameLabel.clear()
+            channel.renameLabel.setPlaceholderText(channel.label)
         
-    def updateLabels(self):
+    def readDBLabels(self):
         global db
         
-        if (isDBOpen()):
-            for channel in tempChannels:
-                
-                cur = db.cursor()
-                cur.row_factory = lambda cursor, row: row[0]
-                
-                try:
-                    cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
-                except sqlite3.OperationalError as e:
-                    if str(e) != "no such table: labels":
-                        raise
-                    else:
-                        channel.label = cur.fetchone()
+        for channel in tempChannels:
+            
+            cur = db.cursor()
+            cur.row_factory = lambda cursor, row: row[0]
+            
+            try:
+                cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
+            except sqlite3.OperationalError as e:
+                if str(e) != "no such table: labels":
+                    print('An error occured reading labels from the database')
+                    raise
+                else:
+                    readLabel = cur.fetchone()
+                    if readLabel:
+                        channel.label = readLabel
 
                         channel.labelDisplay.setText(channel.label)
                         channel.renameLabel.setPlaceholderText(channel.label)
@@ -273,7 +278,18 @@ class mainApp(QMainWindow):
             self.dateTimeEditEnd.setEnabled(True)
         
         self.updateUI()
-            
+        
+    def exportData(self):    
+        df = pd.read_sql_query("SELECT * FROM data_log", db)
+        
+        labels = [channel.label for channel in tempChannels]
+        
+        # sets temp sensor columns to given label
+        for i in range(1, 8):
+            df.rename(columns={df.columns[i]: labels[i - 1]}, inplace=True)
+                
+        df.to_csv(f'exports/export{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv')
+
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
     dt = QDateTime(0,0,0,0,0) # placeholder
