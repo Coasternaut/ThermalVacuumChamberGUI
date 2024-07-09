@@ -5,6 +5,7 @@ import pyqtgraph as pg
 import sys, time, datetime, sqlite3
 import serial, serial.serialutil, serial.tools, serial.tools.list_ports
 from dataclasses import dataclass
+import pandas as pd
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -184,10 +185,9 @@ class mainApp(QMainWindow):
         # starts threads to gather data and timer to refresh UI
         self.updateUITimer.start()
 
-    # stops logging data TODO make thread stop
+    # stops logging data
     def stopLogging(self):
-        print("stopping thread")
-        self.getTempThread.quit()
+        self.updateUITimer.stop()
         
     # imports stored data from a database file
     def openDatabaseFile(self): 
