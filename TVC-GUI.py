@@ -159,14 +159,14 @@ class mainApp(QMainWindow):
         self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
         
         if currentChillerValues['bath_temp']:
-            self.chillerActualValue.setText(f'{currentChillerValues['bath_temp']} C')
+            self.chillerActualValue.setText(f"{currentChillerValues['bath_temp']} C")
         else:
             self.chillerActualValue.setText('No Data')
             
         if currentChillerValues['temp_setpoint']:
-            self.chillerSetpointTemp.setText(f'{currentChillerValues['temp_setpoint']} C')
+            self.chillerSetpointTempValue.setText(f"{currentChillerValues['temp_setpoint']} C")
         else:
-            self.chillerSetpointTemp.setText('No Data')
+            self.chillerSetpointTempValue.setText('No Data')
         
         #updates end display time
         
