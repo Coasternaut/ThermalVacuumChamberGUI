@@ -72,24 +72,21 @@ class mainApp(QMainWindow):
         # get bath temp
         if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
             bathTempInput = getSerialData(self.serialDevices['chiller'])
-            if bathTempInput:
-                currentChillerValues['bath_temp'] = safeFloat(bathTempInput)
+            currentChillerValues['bath_temp'] = safeFloat(bathTempInput)
         else:
             currentChillerValues['bath_temp'] = None
         
         # get pump pressure
         if writeSerialData(self.serialDevices['chiller'],'in_pv_05\r'):
             pumpPressureInput = getSerialData(self.serialDevices['chiller'])
-            if pumpPressureInput:
-                currentChillerValues['pump_pres'] = safeFloat(pumpPressureInput)
+            currentChillerValues['pump_pres'] = safeFloat(pumpPressureInput)
         else:
             currentChillerValues['pump_pres'] = None
         
         # get temperature setpoint
         if writeSerialData(self.serialDevices['chiller'],'in_sp_00\r'):
             tempSetpointInput = getSerialData(self.serialDevices['chiller'])
-            if tempSetpointInput:
-                currentChillerValues['temp_setpoint'] = safeFloat(tempSetpointInput)
+            currentChillerValues['temp_setpoint'] = safeFloat(tempSetpointInput)
         else:
             currentChillerValues['temp_setpoint'] = None
 
@@ -359,17 +356,19 @@ def writeSerialData(serialDevice, dataString):
 
 # converts a string to a float, returning None if the string is not a number
 def safeFloat(string):
-    try:
-        return float(string)
-    except ValueError:
-        return None
+    if string:
+        try:
+            return float(string)
+        except ValueError:
+            return None
+    return None
 
 if __name__ == '__main__':
     
     currentChillerValues = {
-        'bath_temp': 0.0,
-        'pump_pres': 0.0,
-        'temp_setpoint': 0.0
+        'bath_temp': None,
+        'pump_pres': None,
+        'temp_setpoint': None
     }
     
     app = QApplication([])
