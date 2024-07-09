@@ -139,7 +139,10 @@ class mainApp(QMainWindow):
             channel.plot.clear()
             channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen="r")
             
-            channel.currentValueDisplay.setText(f'{channel.currentValue} C')
+            if channel.currentValue:
+                channel.currentValueDisplay.setText(f'{channel.currentValue} C')
+            else:
+                channel.currentValueDisplay.setText('No Data')
             
         # plots chiller temperature
         
@@ -154,6 +157,16 @@ class mainApp(QMainWindow):
     
         self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
         self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
+        
+        if currentChillerValues['bath_temp']:
+            self.chillerActualValue.setText(f'{currentChillerValues['bath_temp']} C')
+        else:
+            self.chillerActualValue.setText('No Data')
+            
+        if currentChillerValues['temp_setpoint']:
+            self.chillerSetpointTemp.setText(f'{currentChillerValues['temp_setpoint']} C')
+        else:
+            self.chillerSetpointTemp.setText('No Data')
         
         #updates end display time
         
