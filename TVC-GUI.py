@@ -65,24 +65,15 @@ class mainApp(QMainWindow):
             
             for i in range(len(tempValuesStr)):
                 tempChannels[i].currentValue = float(tempValuesStr[i])
-            
-            db.execute("INSERT INTO temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                        (timestamp,
-                        tempChannels[0].currentValue,
-                        tempChannels[1].currentValue,
-                        tempChannels[2].currentValue,
-                        tempChannels[3].currentValue,
-                        tempChannels[4].currentValue,
-                        tempChannels[5].currentValue,
-                        tempChannels[6].currentValue))
+        else:
+            for channel in tempChannels:
+                channel.currentValue = None
         
-        validChillerData = False
         # get bath temp
         if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
             bathTempInput = getSerialData(self.serialDevices['chiller'])
             if bathTempInput:
                 currentChillerValues['bath_temp'] = float(bathTempInput)
-                validChillerData = True
         else:
             currentChillerValues['bath_temp'] = None
         
@@ -91,7 +82,6 @@ class mainApp(QMainWindow):
             pumpPressureInput = getSerialData(self.serialDevices['chiller'])
             if pumpPressureInput:
                 currentChillerValues['pump_pres'] = float(pumpPressureInput)
-                validChillerData = True
         else:
             currentChillerValues['pump_pres'] = None
         
@@ -100,13 +90,22 @@ class mainApp(QMainWindow):
             tempSetpointInput = getSerialData(self.serialDevices['chiller'])
             if tempSetpointInput:
                 currentChillerValues['temp_setpoint'] = float(tempSetpointInput)
-                validChillerData = True
         else:
             currentChillerValues['temp_setpoint'] = None
 
-        if validChillerData:
-            db.execute("INSERT INTO chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint) VALUES (?, ?, ?, ?)", 
-                    (timestamp, currentChillerValues['bath_temp'], currentChillerValues['pump_pres'], currentChillerValues['temp_setpoint']))
+        db.execute("INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (timestamp,
+                        tempChannels[0].currentValue,
+                        tempChannels[1].currentValue,
+                        tempChannels[2].currentValue,
+                        tempChannels[3].currentValue,
+                        tempChannels[4].currentValue,
+                        tempChannels[5].currentValue,
+                        tempChannels[6].currentValue),
+                        currentChillerValues['bath_temp'], 
+                        currentChillerValues['pump_pres'], 
+                        currentChillerValues['temp_setpoint'])
+
         db.commit()
          # calculates the time range displayed on the graph
         
@@ -169,8 +168,7 @@ class mainApp(QMainWindow):
         
         openDB() # creates new database file
         
-        db.execute("CREATE TABLE temp_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG)")
-        db.execute("CREATE TABLE chiller_log(timestamp, bath_temp, pump_pres, temp_setpoint)")
+        db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)")
         
         # starts threads to gather data and timer to refresh UI
         self.updateUITimer.start()
