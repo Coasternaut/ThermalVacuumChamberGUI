@@ -93,7 +93,8 @@ class mainApp(QMainWindow):
         else:
             currentChillerValues['temp_setpoint'] = None
 
-        db.execute("INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (timestamp,
                         tempChannels[0].currentValue,
                         tempChannels[1].currentValue,
@@ -101,10 +102,10 @@ class mainApp(QMainWindow):
                         tempChannels[3].currentValue,
                         tempChannels[4].currentValue,
                         tempChannels[5].currentValue,
-                        tempChannels[6].currentValue),
+                        tempChannels[6].currentValue,
                         currentChillerValues['bath_temp'], 
                         currentChillerValues['pump_pres'], 
-                        currentChillerValues['temp_setpoint'])
+                        currentChillerValues['temp_setpoint']))
 
         db.commit()
          # calculates the time range displayed on the graph
@@ -158,8 +159,8 @@ class mainApp(QMainWindow):
         
         cur.execute("SELECT MIN(timestamp), MAX(timestamp) FROM data_log")
         data = cur.fetchall()
-        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(data[0]))
-        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(data[1]))
+        self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(data[0][0]))
+        self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(data[0][1]))
         
         
     # starts logging and graphing data
