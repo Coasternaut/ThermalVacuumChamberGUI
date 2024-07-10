@@ -6,6 +6,7 @@ import sys, time, datetime, sqlite3
 import serial, serial.serialutil, serial.tools, serial.tools.list_ports
 from dataclasses import dataclass
 import pandas as pd
+import termios
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -397,20 +398,22 @@ def writeSerialData(serialDevice, dataString):
             return False
         
 def requestSerialData(serialDevice, requestString):
-    print('Request string: ', requestString)
     try:
+        serialDevice.connectionObject.reset_input_buffer()
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
         data = serialDevice.connectionObject.readline().decode('ascii')
-    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
-        print('resetting connection')
-        resetConnection(serialDevice)
-    print('Final data: ', data)
+    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error):
+        try:
+            resetConnection(serialDevice)
+        except serial.SerialException:
+            return None
     if data:
         return data
     else:
         return None
         
 def resetConnection(serialDevice):
+    print('resetting connection')
     serialDevice.connectionObject.close()
     serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
     serialDevice.connectionObject.open()
