@@ -369,12 +369,10 @@ def getDevicePath(serialNumber):
 def readSerialData(serialDevice):
     try:
         data = serialDevice.connectionObject.readline().decode('ascii')
-        print('First data read: ', data)
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
             resetConnection(serialDevice)
             data = serialDevice.connectionObject.readline().decode('ascii')
-            print('Second data read: ', data)
         except serial.SerialException:
             return None
     if data:
@@ -400,10 +398,17 @@ def writeSerialData(serialDevice, dataString):
         
 def requestSerialData(serialDevice, requestString):
     print('Request string: ', requestString)
-    writeSerialData(serialDevice, requestString)
-    data = readSerialData(serialDevice)
-    print('Final data to return: ', data)
-    return data
+    try:
+        serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
+        data = serialDevice.connectionObject.readline().decode('ascii')
+    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
+        print('resetting connection')
+        resetConnection(serialDevice)
+    print('Final data: ', data)
+    if data:
+        return data
+    else:
+        return None
         
 def resetConnection(serialDevice):
     serialDevice.connectionObject.close()
