@@ -210,7 +210,7 @@ class mainApp(QMainWindow):
         
     # imports stored data from a database file
     def openDatabaseFile(self): 
-        self.currentMode = 'replay'
+        self.setMode('replay')
         
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
         openDB(openFilePath[0])
@@ -315,6 +315,19 @@ class mainApp(QMainWindow):
                 
         df.to_csv(f'exports/export{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv')
 
+    # adjusts UI elements based on new mode
+    def setMode(self, newMode: str):
+        self.currentMode = newMode
+        if newMode == 'replay':
+            self.startButton.setEnabled(False)
+            self.stopButton.setEnabled(False)
+            self.renameButton.setEnabled(False)
+        if newMode == 'live':
+            self.startButton.setEnabled(True)
+            self.stopButton.setEnabled(True)
+            self.renameButton.setEnabled(True)
+            
+            
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
     dt = QDateTime(0,0,0,0,0) # placeholder
