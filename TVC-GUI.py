@@ -80,13 +80,13 @@ class mainApp(QMainWindow):
                 channel.currentValue = None
         
         # get bath temp
-        currentChillerValues['bath_temp'] = requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r')
+        currentChillerValues['bath_temp'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r'))
         
         # get pump pressure
-        currentChillerValues['pump_pres'] = requestSerialData(self.serialDevices['chiller'], 'in_pv_05\r')
+        currentChillerValues['pump_pres'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_05\r'))
         
         # get temperature setpoint
-        currentChillerValues['temp_setpoint'] = requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r')
+        currentChillerValues['temp_setpoint'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
 
         db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
