@@ -413,7 +413,6 @@ def requestSerialData(serialDevice, requestString):
         return None
         
 def resetConnection(serialDevice):
-    print('resetting connection')
     serialDevice.connectionObject.close()
     serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
     serialDevice.connectionObject.open()
