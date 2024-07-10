@@ -21,12 +21,14 @@ class mainApp(QMainWindow):
         self.actionSave.triggered.connect(self.exportData)
         self.actionOpen.triggered.connect(self.openDatabaseFile)
         
-        self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
-        self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
-
+        # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
+        # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
+        
         self.updateUITimer = QTimer(self)
         self.updateUITimer.setInterval(1000)
         self.updateUITimer.timeout.connect(self.updateUI)
+        
+        self.currentMode = 'live'
         
         global tempChannels 
         tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
@@ -53,7 +55,14 @@ class mainApp(QMainWindow):
         for device in self.serialDevices.values():
             getSerialData(device)
 
+    # main loop to update 
     def updateUI(self):
+        self.getNewData()
+        self.updateValueDisplays()
+        self.updateTimeRanges()
+        self.updatePlots()
+
+    def getNewData(self):
         timestamp = time.time()
         # gets temp data
         tempData = getSerialData(self.serialDevices['temp'])
@@ -106,56 +115,14 @@ class mainApp(QMainWindow):
                         currentChillerValues['temp_setpoint']))
 
         db.commit()
-         # calculates the time range displayed on the graph
-        
-        # last # hours
-        if (self.timeRangeMode == 'hours'):
-            endGraphTimestamp = time.time()
-            beginGraphTimestamp = time.time() - (self.hoursBox.value() * 3600) # 3600 sec/hr
-        # Full time
-        elif (self.timeRangeMode == 'full'):
-            endGraphTimestamp = 2**32 # a really big number
-            beginGraphTimestamp = 0
-        # custom range
-        elif(self.timeRangeMode == 'range'):
-            endGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
-            beginGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
-         
-        
-        cur = db.cursor()
-        #cur.row_factory = lambda cursor, row: row[0]
-
-        
-        #plots temperatures
+    
+    def updateValueDisplays(self):
         for channel in tempChannels:
-            cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
-                            WHERE timestamp BETWEEN ? AND ? 
-                            AND {channel.dbName} IS NOT NULL""",
-                            (beginGraphTimestamp, endGraphTimestamp)) # TODO replace fstring
-            data = cur.fetchall()
-        
-            channel.plot.clear()
-            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen="r")
-            
             if channel.currentValue:
                 channel.currentValueDisplay.setText(f'{channel.currentValue} C')
             else:
                 channel.currentValueDisplay.setText('No Data')
-            
-        # plots chiller temperature
-        
-        cur.execute("""SELECT timestamp, bath_temp, temp_setpoint FROM data_log 
-                       WHERE timestamp BETWEEN ? AND ? 
-                       AND bath_temp IS NOT NULL 
-                       AND temp_setpoint IS NOT NULL""", (beginGraphTimestamp, endGraphTimestamp))
-        data = cur.fetchall()
-        chillerTimestamps = [d[0] for d in data]
-        
-        self.chillerTempPlot.clear()
-    
-        self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
-        self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
-        
+                
         if currentChillerValues['bath_temp']:
             self.chillerActualValue.setText(f"{currentChillerValues['bath_temp']} C")
         else:
@@ -165,15 +132,63 @@ class mainApp(QMainWindow):
             self.chillerSetpointTempValue.setText(f"{currentChillerValues['temp_setpoint']} C")
         else:
             self.chillerSetpointTempValue.setText('No Data')
+            
+     # calculates the time range displayed on the graph
+    def updateTimeRanges(self):
         
-        #updates end display time
+        if self.currentMode == 'replay':
+                currentTime = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
+        else:
+                currentTime = time.time()
+                self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
+        # last # hours
+        if (self.timeRangeMode == 'hours'):
+            self.endGraphTimestamp = currentTime
+            self.beginGraphTimestamp = currentTime - (self.hoursBox.value() * 3600) # 3600 sec/hr
+        # Full time
+        elif (self.timeRangeMode == 'full'):
+            self.endGraphTimestamp = 2**32 # a really big number
+            self.beginGraphTimestamp = 0
+        # custom range
+        elif(self.timeRangeMode == 'range'):
+            self.endGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
+            self.beginGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
+            
+    def updatePlots(self):
+        cur = db.cursor()
+        #plots temperatures
+        for channel in tempChannels:
+            cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
+                            WHERE timestamp BETWEEN ? AND ? 
+                            AND {channel.dbName} IS NOT NULL""",
+                            (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
+            data = cur.fetchall()
         
+            channel.plot.clear()
+            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen="r")
+            
+        # plots chiller temperature
+        
+        cur.execute("""SELECT timestamp, bath_temp, temp_setpoint FROM data_log 
+                       WHERE timestamp BETWEEN ? AND ? 
+                       AND bath_temp IS NOT NULL 
+                       AND temp_setpoint IS NOT NULL""", (self.beginGraphTimestamp, self.endGraphTimestamp))
+        data = cur.fetchall()
+        chillerTimestamps = [d[0] for d in data]
+        
+        self.chillerTempPlot.clear()
+    
+        self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
+        self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
+        
+    # sets the time begin and end boxes based on the first and last entry in the database
+    def readDateRange(self):
+        cur = db.cursor()
         cur.execute("SELECT MIN(timestamp), MAX(timestamp) FROM data_log")
         data = cur.fetchall()
         self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(data[0][0]))
         self.dateTimeEditEnd.setDateTime(QDateTimeFromTimestamp(data[0][1]))
-        
-        
+
     # starts logging and graphing data
     def startLogging(self):
         global db
@@ -181,6 +196,10 @@ class mainApp(QMainWindow):
         openDB() # creates new database file
         
         db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)")
+        
+        # sets beginning of time range if 
+        if self.dateTimeEditBegin.dateTime().toSecsSinceEpoch() == 946702800: # default datetime number
+            self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         
         # starts threads to gather data and timer to refresh UI
         self.updateUITimer.start()
@@ -191,14 +210,22 @@ class mainApp(QMainWindow):
         
     # imports stored data from a database file
     def openDatabaseFile(self): 
+        self.currentMode = 'replay'
+        
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
         openDB(openFilePath[0])
-
+        
+        # reads labels and date range from database
         self.readDBLabels()
+        self.readDateRange()
 
         # displays full range
         self.displayTimeBox.setCurrentIndex(1)
-        self.updateTimeRangeMode() # also calls updateUI
+        
+        # updates UI with new data
+        self.updateTimeRangeMode()
+        self.updateTimeRanges()
+        self.updatePlots()
     
     def saveLabels(self):
         global db
@@ -276,8 +303,6 @@ class mainApp(QMainWindow):
             self.displayEndLabel.setEnabled(True)
             self.dateTimeEditBegin.setEnabled(True)
             self.dateTimeEditEnd.setEnabled(True)
-        
-        self.updateUI()
         
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
