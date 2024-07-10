@@ -53,7 +53,7 @@ class mainApp(QMainWindow):
 
         # reads from each device to initialize COM port
         for device in self.serialDevices.values():
-            getSerialData(device)
+            readSerialData(device)
 
     # main loop to update 
     def updateUI(self):
@@ -65,7 +65,7 @@ class mainApp(QMainWindow):
     def getNewData(self):
         timestamp = time.time()
         # gets temp data
-        tempData = getSerialData(self.serialDevices['temp'])
+        tempData = readSerialData(self.serialDevices['temp'])
         
         # if temp data exists
         if tempData:
@@ -80,25 +80,13 @@ class mainApp(QMainWindow):
                 channel.currentValue = None
         
         # get bath temp
-        if writeSerialData(self.serialDevices['chiller'],'in_pv_00\r'):
-            bathTempInput = getSerialData(self.serialDevices['chiller'])
-            currentChillerValues['bath_temp'] = safeFloat(bathTempInput)
-        else:
-            currentChillerValues['bath_temp'] = None
+        currentChillerValues['bath_temp'] = requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r')
         
         # get pump pressure
-        if writeSerialData(self.serialDevices['chiller'],'in_pv_05\r'):
-            pumpPressureInput = getSerialData(self.serialDevices['chiller'])
-            currentChillerValues['pump_pres'] = safeFloat(pumpPressureInput)
-        else:
-            currentChillerValues['pump_pres'] = None
+        currentChillerValues['pump_pres'] = requestSerialData(self.serialDevices['chiller'], 'in_pv_05\r')
         
         # get temperature setpoint
-        if writeSerialData(self.serialDevices['chiller'],'in_sp_00\r'):
-            tempSetpointInput = getSerialData(self.serialDevices['chiller'])
-            currentChillerValues['temp_setpoint'] = safeFloat(tempSetpointInput)
-        else:
-            currentChillerValues['temp_setpoint'] = None
+        currentChillerValues['temp_setpoint'] = requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r')
 
         db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -378,35 +366,49 @@ def getDevicePath(serialNumber):
     
     return None
 
-def getSerialData(serialDevice):
+def readSerialData(serialDevice):
     try:
         data = serialDevice.connectionObject.readline().decode('ascii')
-        if data:
-            return data
-        else:
-            return None
+        print('First data read: ', data)
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
-                serialDevice.connectionObject.close()
-                serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
-                serialDevice.connectionObject.open()
+            resetConnection(serialDevice)
+            data = serialDevice.connectionObject.readline().decode('ascii')
+            print('Second data read: ', data)
         except serial.SerialException:
             return None
+    if data:
+        return data
+    else:
+        return None
         
 # returns True if successful, False otherwise
 def writeSerialData(serialDevice, dataString):
     try:
+        print('First data write: ', dataString)
         serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
         return True
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
         try:
-                serialDevice.connectionObject.close()
-                serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
-                serialDevice.connectionObject.open()
-                serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
+            resetConnection(serialDevice)
+            print('Second data write: ', dataString)
+            serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
+            return True
         except serial.SerialException:
             # print('Failed to reopen connection and write data')
             return False
+        
+def requestSerialData(serialDevice, requestString):
+    print('Request string: ', requestString)
+    writeSerialData(serialDevice, requestString)
+    data = readSerialData(serialDevice)
+    print('Final data to return: ', data)
+    return data
+        
+def resetConnection(serialDevice):
+    serialDevice.connectionObject.close()
+    serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
+    serialDevice.connectionObject.open()
 
 # converts a string to a float, returning None if the string is not a number
 def safeFloat(string):
