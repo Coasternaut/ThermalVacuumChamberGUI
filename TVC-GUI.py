@@ -49,7 +49,8 @@ class mainApp(QMainWindow):
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'temp': serialDevice('D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
-            'chiller': serialDevice('AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True))
+            'chiller': serialDevice('AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)),
+            'ionGauge': serialDevice('B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=1))
         }
 
         # reads from each device to initialize COM port
@@ -88,9 +89,12 @@ class mainApp(QMainWindow):
         
         # get temperature setpoint
         currentChillerValues['temp_setpoint'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
+        
+        # get ionization gauge pressure
+        currentIonValue = safeFloat(requestSerialData(self.serialDevices['ionGauge'], '#01RD\r'))
 
-        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         (timestamp,
                         tempChannels[0].currentValue,
                         tempChannels[1].currentValue,
@@ -101,7 +105,8 @@ class mainApp(QMainWindow):
                         tempChannels[6].currentValue,
                         currentChillerValues['bath_temp'], 
                         currentChillerValues['pump_pres'], 
-                        currentChillerValues['temp_setpoint']))
+                        currentChillerValues['temp_setpoint'],
+                        currentIonValue))
 
         db.commit()
     
@@ -184,7 +189,7 @@ class mainApp(QMainWindow):
         
         openDB() # creates new database file
         
-        db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint)")
+        db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)")
         
         # sets beginning of time range if 
         if self.dateTimeEditBegin.dateTime().toSecsSinceEpoch() == 946702800: # default datetime number
@@ -433,6 +438,8 @@ if __name__ == '__main__':
         'pump_pres': None,
         'temp_setpoint': None
     }
+    
+    currentIonValue = None
     
     app = QApplication([])
     
