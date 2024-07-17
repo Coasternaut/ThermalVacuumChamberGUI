@@ -127,6 +127,11 @@ class mainApp(QMainWindow):
         else:
             self.chillerSetpointTempValue.setText('No Data')
             
+        if currentIonValue:
+            self.ionValue.setText(f"{currentIonValue} Torr")
+        else:
+            self.ionValue.setText('No Data')
+            
      # calculates the time range displayed on the graph
     def updateTimeRanges(self):
         
@@ -174,6 +179,13 @@ class mainApp(QMainWindow):
     
         self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
         self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
+        
+        #plots ion pressure value
+        cur.execute("""SELECT timestamp, ion_pressure FROM data_log 
+                       WHERE timestamp BETWEEN ? AND ? 
+                       AND ion_pressure IS NOT NULL""", (self.beginGraphTimestamp, self.endGraphTimestamp))
+        data = cur.fetchall()
+        self.ionPlot.plot([d[0] for d in data], [d[1] for d in data], pen='r')
         
     # sets the time begin and end boxes based on the first and last entry in the database
     def readDateRange(self):
