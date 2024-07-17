@@ -30,6 +30,8 @@ class mainApp(QMainWindow):
         self.updateUITimer.timeout.connect(self.updateUI)
         
         self.currentMode = 'live'
+
+        self.currentIonValue = None
         
         global tempChannels 
         tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
@@ -45,6 +47,7 @@ class mainApp(QMainWindow):
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
 
         self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+        self.ionPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
@@ -91,7 +94,11 @@ class mainApp(QMainWindow):
         currentChillerValues['temp_setpoint'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
         
         # get ionization gauge pressure
-        currentIonValue = safeFloat(requestSerialData(self.serialDevices['ionGauge'], '#01RD\r'))
+        ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r')
+        if ionData:
+            self.currentIonValue = safeFloat(ionData[4:]) # splits data from return header
+        else: 
+            self.currentIonValue = None
 
         db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -106,7 +113,7 @@ class mainApp(QMainWindow):
                         currentChillerValues['bath_temp'], 
                         currentChillerValues['pump_pres'], 
                         currentChillerValues['temp_setpoint'],
-                        currentIonValue))
+                        self.currentIonValue))
 
         db.commit()
     
@@ -127,8 +134,8 @@ class mainApp(QMainWindow):
         else:
             self.chillerSetpointTempValue.setText('No Data')
             
-        if currentIonValue:
-            self.ionValue.setText(f"{currentIonValue} Torr")
+        if self.currentIonValue:
+            self.ionValue.setText(f"{self.currentIonValue} Torr")
         else:
             self.ionValue.setText('No Data')
             
@@ -450,8 +457,6 @@ if __name__ == '__main__':
         'pump_pres': None,
         'temp_setpoint': None
     }
-    
-    currentIonValue = None
     
     app = QApplication([])
     
