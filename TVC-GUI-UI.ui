@@ -41,9 +41,9 @@
     <property name="geometry">
      <rect>
       <x>320</x>
-      <y>80</y>
-      <width>220</width>
-      <height>38</height>
+      <y>70</y>
+      <width>146</width>
+      <height>29</height>
      </rect>
     </property>
     <property name="font">
@@ -88,293 +88,6 @@
         <string>Stop Logging</string>
        </property>
       </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="gridLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>120</y>
-      <width>761</width>
-      <height>791</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="tempPlotGrid">
-     <item row="1" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout_10">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
-         <item>
-          <widget class="QLabel" name="tempBLabel">
-           <property name="text">
-            <string>Temp Sensor B</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="tempBValue">
-           <property name="text">
-            <string>0 C</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="PlotWidget" name="tempBPlot"/>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="tempCLabel">
-             <property name="text">
-              <string>Temp Sensor C</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="tempCValue">
-             <property name="text">
-              <string>0 C</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="PlotWidget" name="tempCPlot"/>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
-             </property>
-             <item>
-              <widget class="QLabel" name="tempDLabel">
-               <property name="text">
-                <string>Temp Sensor D</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="tempDValue">
-               <property name="text">
-                <string>0 C</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="PlotWidget" name="tempDPlot"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
-         <item>
-          <widget class="QLabel" name="tempFLabel">
-           <property name="text">
-            <string>Temp Sensor F</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="tempFValue">
-           <property name="text">
-            <string>0 C</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="PlotWidget" name="tempFPlot"/>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_11">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_8">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="tempGLabel">
-             <property name="text">
-              <string>Temp Sensor G</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="tempGValue">
-             <property name="text">
-              <string>0 C</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="PlotWidget" name="tempGPlot"/>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <property name="sizeConstraint">
-              <enum>QLayout::SetDefaultConstraint</enum>
-             </property>
-             <item>
-              <widget class="QLabel" name="chillerLabel">
-               <property name="text">
-                <string>Chiller</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="chillerSetpointTempLabel">
-               <property name="text">
-                <string>Setpoint</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="chillerSetpointTempValue">
-               <property name="text">
-                <string>0 C</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="chillerActualTempLabel">
-               <property name="text">
-                <string>       Actual</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="chillerActualValue">
-               <property name="text">
-                <string>0 C</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="PlotWidget" name="chillerTempPlot"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1">
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
-         <item>
-          <widget class="QLabel" name="tempELabel">
-           <property name="text">
-            <string>Temp Sensor E</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="tempEValue">
-           <property name="text">
-            <string>0 C</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="PlotWidget" name="tempEPlot"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetNoConstraint</enum>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
-         <item>
-          <widget class="QLabel" name="tempALabel">
-           <property name="text">
-            <string>Temp Sensor A</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="tempAValue">
-           <property name="text">
-            <string>0 C</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="PlotWidget" name="tempAPlot"/>
-       </item>
-      </layout>
      </item>
     </layout>
    </widget>
@@ -536,10 +249,10 @@
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>870</x>
+      <x>1370</x>
       <y>10</y>
-      <width>365</width>
-      <height>131</height>
+      <width>251</width>
+      <height>124</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
@@ -658,6 +371,450 @@
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>371</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetNoConstraint</enum>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempALabel">
+         <property name="text">
+          <string>Temp Sensor A</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempAValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempAPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>320</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempELabel">
+         <property name="text">
+          <string>Temp Sensor E</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempEValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempEPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>390</y>
+      <width>371</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_10">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempBLabel">
+         <property name="text">
+          <string>Temp Sensor B</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempBValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempBPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>530</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempFLabel">
+         <property name="text">
+          <string>Temp Sensor F</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempFValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempFPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>660</y>
+      <width>371</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_9">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempCLabel">
+         <property name="text">
+          <string>Temp Sensor C</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempCValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempCPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>120</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempDLabel">
+         <property name="text">
+          <string>Temp Sensor D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempDValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempDPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>120</y>
+      <width>371</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="chillerTempLabel">
+         <property name="text">
+          <string>Chiller Temperature</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerSetpointTempLabel">
+         <property name="text">
+          <string>Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerSetpointTempValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerActualTempLabel">
+         <property name="text">
+          <string>       Actual</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerActualValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="chillerTempPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>730</y>
+      <width>371</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_11">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="tempGLabel">
+         <property name="text">
+          <string>Temp Sensor G</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempGValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="tempGPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>480</y>
+      <width>371</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_12">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_9">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="chillerPresLabel">
+         <property name="text">
+          <string>Chiller Pressure</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerSetpointPresLabel">
+         <property name="text">
+          <string>Setpoint</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerSetpointPresValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerActualPresLabel">
+         <property name="text">
+          <string>       Actual</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="chillerActualPresValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="chillerPresPlot"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="layoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>1160</x>
+      <y>150</y>
+      <width>371</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_13">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetNoConstraint</enum>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="ionLabel">
+         <property name="text">
+          <string>Ionization Pressure</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="ionValue">
+         <property name="text">
+          <string>0 C</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="PlotWidget" name="ionPlot"/>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -665,7 +822,7 @@
      <x>0</x>
      <y>0</y>
      <width>1800</width>
-     <height>24</height>
+     <height>43</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
