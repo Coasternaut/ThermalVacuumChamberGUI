@@ -391,6 +391,7 @@ def writeSerialData(serialDevice, dataString):
             return False
         
 def requestSerialData(serialDevice, requestString):
+    data = None
     try:
         serialDevice.connectionObject.reset_input_buffer()
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
