@@ -24,8 +24,8 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>495</width>
-      <height>38</height>
+      <width>443</width>
+      <height>39</height>
      </rect>
     </property>
     <property name="font">
@@ -40,10 +40,10 @@
    <widget class="QLabel" name="tempTitle">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>290</x>
       <y>70</y>
-      <width>146</width>
-      <height>29</height>
+      <width>199</width>
+      <height>39</height>
      </rect>
     </property>
     <property name="font">
@@ -249,10 +249,10 @@
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>1370</x>
+      <x>1285</x>
       <y>10</y>
-      <width>251</width>
-      <height>124</height>
+      <width>331</width>
+      <height>120</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
@@ -371,7 +371,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -399,7 +399,7 @@
        <item>
         <widget class="QLabel" name="tempAValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -413,7 +413,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>400</x>
@@ -438,7 +438,7 @@
        <item>
         <widget class="QLabel" name="tempEValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -452,7 +452,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -477,7 +477,7 @@
        <item>
         <widget class="QLabel" name="tempBValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -491,7 +491,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>400</x>
@@ -516,7 +516,7 @@
        <item>
         <widget class="QLabel" name="tempFValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -530,7 +530,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -555,7 +555,7 @@
        <item>
         <widget class="QLabel" name="tempCValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -569,7 +569,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>400</x>
@@ -594,7 +594,7 @@
        <item>
         <widget class="QLabel" name="tempDValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -608,7 +608,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>780</x>
@@ -623,6 +623,10 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_11">
        <item>
         <widget class="QLabel" name="chillerTempLabel">
          <property name="text">
@@ -631,38 +635,42 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="chillerSetpointTempLabel">
-         <property name="text">
-          <string>Setpoint</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerSetpointTempValue">
-         <property name="text">
-          <string>0 C</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerActualTempLabel">
-         <property name="text">
-          <string>       Actual</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerActualValue">
-         <property name="text">
-          <string>0 C</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
+        <layout class="QFormLayout" name="formLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="chillerSetpointTempLabel">
+           <property name="text">
+            <string>Setpoint:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="chillerSetpointTempValue">
+           <property name="text">
+            <string>No Data</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="chillerActualTempLabel">
+           <property name="text">
+            <string>Actual:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="chillerActualTempValue">
+           <property name="text">
+            <string>No Data</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -671,7 +679,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>400</x>
@@ -696,7 +704,7 @@
        <item>
         <widget class="QLabel" name="tempGValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -707,69 +715,6 @@
      </item>
      <item>
       <widget class="PlotWidget" name="tempGPlot"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>780</x>
-      <y>480</y>
-      <width>371</width>
-      <height>341</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_12">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_9">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
-       </property>
-       <item>
-        <widget class="QLabel" name="chillerPresLabel">
-         <property name="text">
-          <string>Chiller Pressure</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerSetpointPresLabel">
-         <property name="text">
-          <string>Setpoint</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerSetpointPresValue">
-         <property name="text">
-          <string>0 C</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerActualPresLabel">
-         <property name="text">
-          <string>       Actual</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="chillerActualPresValue">
-         <property name="text">
-          <string>0 C</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="PlotWidget" name="chillerPresPlot"/>
      </item>
     </layout>
    </widget>
@@ -801,7 +746,7 @@
        <item>
         <widget class="QLabel" name="ionValue">
          <property name="text">
-          <string>0 C</string>
+          <string>No Data</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -822,7 +767,7 @@
      <x>0</x>
      <y>0</y>
      <width>1800</width>
-     <height>43</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
