@@ -41,7 +41,7 @@ class mainApp(QMainWindow):
                             'tempF': dataChannel('temp', 'tempF', 'Temp Sensor F', 'C', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
                             'tempG': dataChannel('temp', 'tempG', 'Temp Sensor G', 'C', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
                             'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'C', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
-                            'setpoint_temp': dataChannel('chiller', 'setpoint_temp', 'Setpoint:', 'C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
+                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
                             'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'Torr', self.ionPlot, self.ionLabel, self.ionValue)
                             }
         
@@ -108,7 +108,7 @@ class mainApp(QMainWindow):
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
             if channel.currentValue:
-                channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.units}')
+                channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.unit}')
             else:
                 channel.currentValueDisplay.setText('No Data')
                 
@@ -136,7 +136,7 @@ class mainApp(QMainWindow):
     def updatePlots(self):
         cur = db.cursor()
         #plots data
-        for channel in self.dataChannels:
+        for channel in self.dataChannels.values():
             cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
                             WHERE timestamp BETWEEN ? AND ? 
                             AND {channel.dbName} IS NOT NULL""",
@@ -202,7 +202,7 @@ class mainApp(QMainWindow):
             
         db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
-        for channel in self.dataChannels:
+        for channel in self.dataChannels.values():
             if channel.renameLabel:
                 if channel.renameLabel.text():
                     channel.label = channel.renameLabel.text()
@@ -219,7 +219,7 @@ class mainApp(QMainWindow):
         cur = db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
         
-        for channel in self.dataChannels:
+        for channel in self.dataChannels.values():
             if channel.renameLabel:
                 try:
                     cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
@@ -275,7 +275,7 @@ class mainApp(QMainWindow):
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
         
-        labels = [channel.label for channel in self.dataChannels]
+        labels = [channel.label for channel in self.dataChannels.values()]
         
         # sets temp sensor columns to given label
         for i in range(1, 8):
@@ -299,7 +299,7 @@ class mainApp(QMainWindow):
     def currentValueTuple(self):
         data = [self.currentTimestamp]
         
-        for channel in self.dataChannels:
+        for channel in self.dataChannels.values():
             data.append(channel.currentValue)
     
         return tuple(data)
