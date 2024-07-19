@@ -7,6 +7,7 @@ import serial, serial.serialutil, serial.tools, serial.tools.list_ports
 from dataclasses import dataclass
 import pandas as pd
 import termios
+import numpy as np
 
 class mainApp(QMainWindow):
     def __init__(self):
@@ -138,14 +139,24 @@ class mainApp(QMainWindow):
         #plots data
         for channel in self.dataChannels.values():
             cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
-                            WHERE timestamp BETWEEN ? AND ? 
-                            AND {channel.dbName} IS NOT NULL""",
+                            WHERE timestamp BETWEEN ? AND ?""",
                             (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
             data = cur.fetchall()
 
+
+            xAxis = []
+            yAxis = []
+
+            for d in data:
+                xAxis.append(d[0])
+                if d[1]:
+                    yAxis.append(d[1])
+                else:
+                    yAxis.append(np.nan)
+
             if channel.singlePlot:
                 channel.plot.clear()
-            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen=channel.color)
+            channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
             channel.plot.setRange(xRange=(self.beginGraphTimestamp, self.endGraphTimestamp))
             
         
