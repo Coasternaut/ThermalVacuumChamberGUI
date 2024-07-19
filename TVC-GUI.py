@@ -146,6 +146,7 @@ class mainApp(QMainWindow):
             if channel.singlePlot:
                 channel.plot.clear()
             channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen=channel.color)
+            channel.plot.setRange(xRange=(self.beginGraphTimestamp, self.endGraphTimestamp))
             
         
     # sets the time begin and end boxes based on the first and last entry in the database
@@ -294,7 +295,7 @@ class mainApp(QMainWindow):
             self.startButton.setEnabled(True)
             self.stopButton.setEnabled(True)
             self.renameButton.setEnabled(True)
-            
+
     # returns the timestamp and all current values as a tuple
     def currentValueTuple(self):
         data = [self.currentTimestamp]
