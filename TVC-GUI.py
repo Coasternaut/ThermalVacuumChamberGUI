@@ -110,8 +110,10 @@ class mainApp(QMainWindow):
         for channel in self.dataChannels.values():
             if channel.currentValue:
                 channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.unit}')
+                channel.currentValueDisplay.setStyleSheet('color: black')
             else:
                 channel.currentValueDisplay.setText('No Data')
+                channel.currentValueDisplay.setStyleSheet('color: red')
                 
      # calculates the time range displayed on the graph
     def updateTimeRanges(self):
