@@ -31,7 +31,7 @@ class mainApp(QMainWindow):
         
         self.currentMode = 'live'
 
-        self.currentIonValue = None
+        self.startTime = None
         
         self.dataChannels = {'tempA': dataChannel('temp', 'tempA', 'Temp Sensor A', 'C', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
                             'tempB': dataChannel('temp', 'tempB', 'Temp Sensor B', 'C', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
@@ -81,7 +81,7 @@ class mainApp(QMainWindow):
             for i in range(len(tempValuesStr)):
                 list(self.dataChannels.values())[i].currentValue = safeFloat(tempValuesStr[i])
         else:
-            for channel in list(self.dataChannels.values())[:6]:
+            for channel in list(self.dataChannels.values())[:7]:
                 channel.currentValue = None
         
         # get bath temp
@@ -126,12 +126,12 @@ class mainApp(QMainWindow):
             self.beginGraphTimestamp = currentTime - (self.hoursBox.value() * 3600) # 3600 sec/hr
         # Full time
         elif (self.timeRangeMode == 'full'):
-            self.endGraphTimestamp = 2**32 # a really big number
-            self.beginGraphTimestamp = 0
+            self.endGraphTimestamp = time.time()
+            self.beginGraphTimestamp = self.startTime
         # custom range
         elif(self.timeRangeMode == 'range'):
-            self.endGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
-            self.beginGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
+            self.endGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
+            self.beginGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
             
     def updatePlots(self):
         cur = db.cursor()
@@ -166,7 +166,8 @@ class mainApp(QMainWindow):
         db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)")
         
         # sets beginning of time range if 
-        if self.dateTimeEditBegin.dateTime().toSecsSinceEpoch() == 946702800: # default datetime number
+        if not self.startTime:
+            self.startTime = time.time()
             self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         
         # starts threads to gather data and timer to refresh UI
