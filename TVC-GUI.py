@@ -33,21 +33,21 @@ class mainApp(QMainWindow):
 
         self.currentIonValue = None
         
-        global tempChannels 
-        tempChannels = [dataChannel('tempA', 'temp_log', 'Temp Sensor A', 0.0, self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
-                        dataChannel('tempB', 'temp_log', 'Temp Sensor B', 0.0, self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
-                        dataChannel('tempC', 'temp_log', 'Temp Sensor C', 0.0, self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
-                        dataChannel('tempD', 'temp_log', 'Temp Sensor D', 0.0, self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
-                        dataChannel('tempE', 'temp_log', 'Temp Sensor E', 0.0, self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
-                        dataChannel('tempF', 'temp_log', 'Temp Sensor F', 0.0, self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
-                        dataChannel('tempG', 'temp_log', 'Temp Sensor G', 0.0, self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename)]
+        self.dataChannels = {'tempA': dataChannel('temp', 'tempA', 'Temp Sensor A', 'C', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
+                            'tempB': dataChannel('temp', 'tempB', 'Temp Sensor B', 'C', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
+                            'tempC': dataChannel('temp', 'tempC', 'Temp Sensor C', 'C', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
+                            'tempD': dataChannel('temp', 'tempD', 'Temp Sensor D', 'C', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
+                            'tempE': dataChannel('temp', 'tempE', 'Temp Sensor E', 'C', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
+                            'tempF': dataChannel('temp', 'tempF', 'Temp Sensor F', 'C', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
+                            'tempG': dataChannel('temp', 'tempG', 'Temp Sensor G', 'C', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
+                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'C', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
+                            'setpoint_temp': dataChannel('chiller', 'setpoint_temp', 'Setpoint:', 'C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
+                            'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'Torr', self.ionPlot, self.ionLabel, self.ionValue)
+                            }
         
         # initializes graphs
-        for channel in tempChannels:
+        for channel in self.dataChannels.values():
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-
-        self.chillerTempPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-        self.ionPlot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
         
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
@@ -68,7 +68,7 @@ class mainApp(QMainWindow):
         self.updatePlots()
 
     def getNewData(self):
-        timestamp = time.time()
+        self.currentTimestamp = time.time()
         # gets temp data
         tempData = readSerialData(self.serialDevices['temp'])
         
@@ -79,66 +79,39 @@ class mainApp(QMainWindow):
             tempValuesStr.pop()
             
             for i in range(len(tempValuesStr)):
-                tempChannels[i].currentValue = safeFloat(tempValuesStr[i])
+                list(self.dataChannels.values())[i].currentValue = safeFloat(tempValuesStr[i])
         else:
-            for channel in tempChannels:
+            for channel in list(self.dataChannels.values())[:6]:
                 channel.currentValue = None
         
         # get bath temp
-        currentChillerValues['bath_temp'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r'))
-        
-        # get pump pressure
-        currentChillerValues['pump_pres'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_05\r'))
+        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r'))
         
         # get temperature setpoint
-        currentChillerValues['temp_setpoint'] = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
+        self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
         
         # get ionization gauge pressure
         ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r')
         if ionData:
-            self.currentIonValue = safeFloat(ionData[4:]) # splits data from return header
+            ionData = safeFloat(ionData[4:]) # splits data from return header
         else: 
-            self.currentIonValue = None
+            ionData = None
+            
+        self.dataChannels['ion_pressure'].currentValue = ionData
 
-        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                        (timestamp,
-                        tempChannels[0].currentValue,
-                        tempChannels[1].currentValue,
-                        tempChannels[2].currentValue,
-                        tempChannels[3].currentValue,
-                        tempChannels[4].currentValue,
-                        tempChannels[5].currentValue,
-                        tempChannels[6].currentValue,
-                        currentChillerValues['bath_temp'], 
-                        currentChillerValues['pump_pres'], 
-                        currentChillerValues['temp_setpoint'],
-                        self.currentIonValue))
+        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        self.currentValueTuple())
 
         db.commit()
     
     def updateValueDisplays(self):
-        for channel in tempChannels:
+        for channel in self.dataChannels.values():
             if channel.currentValue:
-                channel.currentValueDisplay.setText(f'{channel.currentValue} C')
+                channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.units}')
             else:
                 channel.currentValueDisplay.setText('No Data')
                 
-        if currentChillerValues['bath_temp']:
-            self.chillerActualValue.setText(f"{currentChillerValues['bath_temp']} C")
-        else:
-            self.chillerActualValue.setText('No Data')
-            
-        if currentChillerValues['temp_setpoint']:
-            self.chillerSetpointTempValue.setText(f"{currentChillerValues['temp_setpoint']} C")
-        else:
-            self.chillerSetpointTempValue.setText('No Data')
-            
-        if self.currentIonValue:
-            self.ionValue.setText(f"{self.currentIonValue} Torr")
-        else:
-            self.ionValue.setText('No Data')
-            
      # calculates the time range displayed on the graph
     def updateTimeRanges(self):
         
@@ -162,37 +135,18 @@ class mainApp(QMainWindow):
             
     def updatePlots(self):
         cur = db.cursor()
-        #plots temperatures
-        for channel in tempChannels:
+        #plots data
+        for channel in self.dataChannels:
             cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
                             WHERE timestamp BETWEEN ? AND ? 
                             AND {channel.dbName} IS NOT NULL""",
                             (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
             data = cur.fetchall()
-        
-            channel.plot.clear()
-            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen="r")
+
+            if channel.singlePlot:
+                channel.plot.clear()
+            channel.plot.plot([d[0] for d in data], [d[1] for d in data], pen=channel.color)
             
-        # plots chiller temperature
-        
-        cur.execute("""SELECT timestamp, bath_temp, temp_setpoint FROM data_log 
-                       WHERE timestamp BETWEEN ? AND ? 
-                       AND bath_temp IS NOT NULL 
-                       AND temp_setpoint IS NOT NULL""", (self.beginGraphTimestamp, self.endGraphTimestamp))
-        data = cur.fetchall()
-        chillerTimestamps = [d[0] for d in data]
-        
-        self.chillerTempPlot.clear()
-    
-        self.chillerTempPlot.plot(chillerTimestamps, [d[1] for d in data], pen="r")
-        self.chillerTempPlot.plot(chillerTimestamps, [d[2] for d in data], pen="g")
-        
-        #plots ion pressure value
-        cur.execute("""SELECT timestamp, ion_pressure FROM data_log 
-                       WHERE timestamp BETWEEN ? AND ? 
-                       AND ion_pressure IS NOT NULL""", (self.beginGraphTimestamp, self.endGraphTimestamp))
-        data = cur.fetchall()
-        self.ionPlot.plot([d[0] for d in data], [d[1] for d in data], pen='r')
         
     # sets the time begin and end boxes based on the first and last entry in the database
     def readDateRange(self):
@@ -248,37 +202,38 @@ class mainApp(QMainWindow):
             
         db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
-        for channel in tempChannels:
-            if channel.renameLabel.text():
-                channel.label = channel.renameLabel.text()
-            db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
-            db.commit()
-            
-            channel.labelDisplay.setText(channel.label)
-            channel.renameLabel.clear()
-            channel.renameLabel.setPlaceholderText(channel.label)
+        for channel in self.dataChannels:
+            if channel.renameLabel:
+                if channel.renameLabel.text():
+                    channel.label = channel.renameLabel.text()
+                db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
+                db.commit()
+                
+                channel.labelDisplay.setText(channel.label)
+                channel.renameLabel.clear()
+                channel.renameLabel.setPlaceholderText(channel.label)
         
     def readDBLabels(self):
         global db
         
-        for channel in tempChannels:
-            
-            cur = db.cursor()
-            cur.row_factory = lambda cursor, row: row[0]
-            
-            try:
-                cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
-            except sqlite3.OperationalError as e:
-                if str(e) != "no such table: labels":
-                    print('An error occured reading labels from the database')
-                    raise
-                else:
-                    readLabel = cur.fetchone()
-                    if readLabel:
-                        channel.label = readLabel
+        cur = db.cursor()
+        cur.row_factory = lambda cursor, row: row[0]
+        
+        for channel in self.dataChannels:
+            if channel.renameLabel:
+                try:
+                    cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
+                except sqlite3.OperationalError as e:
+                    if str(e) != "no such table: labels":
+                        print('An error occured reading labels from the database')
+                        raise
+                    else:
+                        readLabel = cur.fetchone()
+                        if readLabel:
+                            channel.label = readLabel
 
-                        channel.labelDisplay.setText(channel.label)
-                        channel.renameLabel.setPlaceholderText(channel.label)
+                            channel.labelDisplay.setText(channel.label)
+                            channel.renameLabel.setPlaceholderText(channel.label)
                 
     def updateTimeRangeMode(self):
         selection = self.displayTimeBox.currentIndex()
@@ -320,7 +275,7 @@ class mainApp(QMainWindow):
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
         
-        labels = [channel.label for channel in tempChannels]
+        labels = [channel.label for channel in self.dataChannels]
         
         # sets temp sensor columns to given label
         for i in range(1, 8):
@@ -340,6 +295,15 @@ class mainApp(QMainWindow):
             self.stopButton.setEnabled(True)
             self.renameButton.setEnabled(True)
             
+    # returns the timestamp and all current values as a tuple
+    def currentValueTuple(self):
+        data = [self.currentTimestamp]
+        
+        for channel in self.dataChannels:
+            data.append(channel.currentValue)
+    
+        return tuple(data)
+            
             
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
@@ -350,14 +314,17 @@ def QDateTimeFromTimestamp(timestamp):
                 
 @dataclass       
 class dataChannel:
+    type: str
     dbName: str
-    dbTable: str
     label: str
-    currentValue: float = 0.0
-    plot: any = None
-    labelDisplay: any = None
-    currentValueDisplay: any = None
-    renameLabel: any = None
+    unit: str
+    plot: any
+    labelDisplay: any
+    currentValueDisplay: any
+    renameLabel: any = None 
+    singlePlot: bool = True
+    color: str = 'r'
+    currentValue: float = None
     
 @dataclass
 class serialDevice:
