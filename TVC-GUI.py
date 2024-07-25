@@ -64,22 +64,15 @@ class mainApp(QMainWindow):
     # main loop to update 
     def updateUI(self):
         loopStartTime = time.time()
-        clock = time.time()
 
         self.getNewData()
-        self.dataTime.setText(str(round((time.time() - clock), 3)))
-        clock = time.time()
-
         self.updateValueDisplays()
-        self.valuesTime.setText(str(round((time.time() - clock), 3)))
-        clock = time.time()
-
         self.updateTimeRanges()
-        self.rangesTime.setText(str(round((time.time() - clock), 3)))
-        clock = time.time()
 
+        clock = time.time()
         self.updatePlots()
         self.plottingTime.setText(str(round((time.time() - clock), 3)))
+
         self.totalTime.setText(str(round((time.time() - loopStartTime), 3)))
 
     def getNewData(self):
@@ -98,12 +91,18 @@ class mainApp(QMainWindow):
         else:
             for channel in list(self.dataChannels.values())[:7]:
                 channel.currentValue = None
+
+        self.tempTime.setText(str(round((time.time() - self.currentTimestamp), 3)))
+        clock = time.time()
         
         # get bath temp
         self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r'))
         
         # get temperature setpoint
         self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
+
+        self.chillerTime.setText(str(round((time.time() - clock), 3)))
+        clock = time.time()
         
         # get ionization gauge pressure
         ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r')
@@ -114,11 +113,16 @@ class mainApp(QMainWindow):
             
         self.dataChannels['ion_pressure'].currentValue = ionData
 
+        self.ionTime.setText(str(round((time.time() - clock), 3)))
+
+        clock = time.time()
         db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         self.currentValueTuple())
 
         db.commit()
+
+        self.dbTime.setText(str(round((time.time() - clock), 3)))
     
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
@@ -422,7 +426,7 @@ def requestSerialData(serialDevice, requestString):
     try:
         serialDevice.connectionObject.reset_input_buffer()
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
-        data = serialDevice.connectionObject.readline().decode('ascii')
+        data = serialDevice.connectionObject.read_until(b'\r').decode('ascii')
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error):
         try:
             resetConnection(serialDevice)
