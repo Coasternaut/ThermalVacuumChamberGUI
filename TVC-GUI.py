@@ -79,8 +79,8 @@ class mainApp(QMainWindow):
             tempValuesStr = tempData.split(';')
             tempValuesStr.pop()
             
-            for i in range(len(tempValuesStr)):
-                list(self.dataChannels.values())[i].currentValue = safeFloat(tempValuesStr[i])
+            for i, channel in zip(range(len(tempValuesStr)), self.dataChannels.values()):
+                channel.currentValue = safeFloat(tempValuesStr[i])
         else:
             for channel in list(self.dataChannels.values())[:7]:
                 channel.currentValue = None
