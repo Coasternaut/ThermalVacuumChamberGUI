@@ -80,7 +80,7 @@ class mainApp(QMainWindow):
             tempValuesStr.pop()
             
             for i, channel in zip(range(len(tempValuesStr)), self.dataChannels.values()):
-                channel.currentValue = safeFloat(tempValuesStr[i])
+                channel.currentValue = validateTemp(safeFloat(tempValuesStr[i]))
         else:
             for channel in list(self.dataChannels.values())[:7]:
                 channel.currentValue = None
@@ -432,6 +432,14 @@ def safeFloat(string):
         except ValueError:
             return None
     return None
+
+# returns None if temperature value is outside of the supported range for the sensor
+def validateTemp(temp):
+    if temp > -40 and temp < 125:
+        return temp
+    else:
+        return None
+
 
 if __name__ == '__main__':
     
