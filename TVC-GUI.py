@@ -63,10 +63,24 @@ class mainApp(QMainWindow):
 
     # main loop to update 
     def updateUI(self):
+        loopStartTime = time.time()
+        clock = time.time()
+
         self.getNewData()
+        self.dataTime.setText(str(round((time.time() - clock), 3)))
+        clock = time.time()
+
         self.updateValueDisplays()
+        self.valuesTime.setText(str(round((time.time() - clock), 3)))
+        clock = time.time()
+
         self.updateTimeRanges()
+        self.rangesTime.setText(str(round((time.time() - clock), 3)))
+        clock = time.time()
+
         self.updatePlots()
+        self.plottingTime.setText(str(round((time.time() - clock), 3)))
+        self.totalTime.setText(str(round((time.time() - loopStartTime), 3)))
 
     def getNewData(self):
         self.currentTimestamp = time.time()
