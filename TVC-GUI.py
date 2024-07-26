@@ -457,7 +457,7 @@ def requestSerialData(serialDevice, requestString):
         data = data.decode('ascii').strip()
         #print(f'Data - {serialDevice.name}: ', data)
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
-        print(f'Warning - {serialDevice.name}: {e}')
+        #print(f'Warning - {serialDevice.name}: {e}')
         try:
             resetConnection(serialDevice)
         except serial.SerialException:
