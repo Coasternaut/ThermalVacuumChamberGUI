@@ -49,7 +49,7 @@ class mainApp(QMainWindow):
         # initializes graphs
         for channel in self.dataChannels.values():
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
-        
+
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
@@ -180,28 +180,22 @@ class mainApp(QMainWindow):
 
             if channel.singlePlot:
                 channel.plot.clear()
+                channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
+
+            if channel.type == 'temp':
+                minYBorder = 2
 
                 yMin = min(yAxis)
                 yMax = max(yAxis)
-                yAverage = np.mean(yAxis)
 
-                if yMax - yMin < 5:
-                    yRangeMin = yAverage - 2.5
-                    yRangeMax = yAverage + 2.5
-                else:
-                    yRangeMin = yMin * 0.9
-                    yRangeMax = yMax * 1.1
+                yRangeMin = min(yMin * 0.95, yMin - minYBorder)
+                yRangeMax = max(yMax * 1.05, yMax + minYBorder)
 
-                if channel.dbName == 'temp_setpoint':
-                    print(f'{channel.dbName} range, avg: ', yRangeMin, yRangeMax, yAverage)
+                channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
 
-
-                channel.plot.setRange(xRange=(self.beginGraphTimestamp, self.endGraphTimestamp), yRange=(yRangeMin, yRangeMax), update=False)
-            
             channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
             
             
-        
     # sets the time begin and end boxes based on the first and last entry in the database
     def readDateRange(self):
         cur = db.cursor()
@@ -497,7 +491,7 @@ def validateTemp(temp):
 def validNumber(input):
     if type(input) == int or type(input) == float:
         return True
-    print(f'Invalid number - input: {input}; type: {type(input)}')
+    #print(f'Invalid number - input: {input}; type: {type(input)}')
     return False
 
 
