@@ -127,7 +127,7 @@ class mainApp(QMainWindow):
     
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
-            if channel.currentValue:
+            if validNumber(channel.currentValue):
                 channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.unit}')
                 channel.currentValueDisplay.setStyleSheet('color: black; font-size: 16px')
             else:
@@ -172,15 +172,34 @@ class mainApp(QMainWindow):
 
             for d in data:
                 xAxis.append(d[0])
-                if d[1]:
+                if validNumber(d[1]):
                     yAxis.append(d[1])
                 else:
+                    print('Invalid data for graphing: ', d[1])
                     yAxis.append(np.nan)
 
             if channel.singlePlot:
                 channel.plot.clear()
+
+                yMin = min(yAxis)
+                yMax = max(yAxis)
+                yAverage = np.mean(yAxis)
+
+                if yMax - yMin < 5:
+                    yRangeMin = yAverage - 2.5
+                    yRangeMax = yAverage + 2.5
+                else:
+                    yRangeMin = yMin * 0.9
+                    yRangeMax = yMax * 1.1
+
+                if channel.dbName == 'temp_setpoint':
+                    print(f'{channel.dbName} range, avg: ', yRangeMin, yRangeMax, yAverage)
+
+
+                channel.plot.setRange(xRange=(self.beginGraphTimestamp, self.endGraphTimestamp), yRange=(yRangeMin, yRangeMax), update=False)
+            
             channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
-            channel.plot.setRange(xRange=(self.beginGraphTimestamp, self.endGraphTimestamp))
+            
             
         
     # sets the time begin and end boxes based on the first and last entry in the database
@@ -436,10 +455,10 @@ def requestSerialData(serialDevice, requestString):
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
         #print('data written')
         data = serialDevice.connectionObject.read_until(b'\r')
-        print(f'Bytes - {serialDevice.name}: ', data)
-        print(f'Bytes length - {serialDevice.name}: ', len(data))
+        #print(f'Bytes - {serialDevice.name}: ', data)
+        #print(f'Bytes length - {serialDevice.name}: ', len(data))
         data = data.decode('ascii').strip()
-        print(f'Data - {serialDevice.name}: ', data)
+        #print(f'Data - {serialDevice.name}: ', data)
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
         print(f'Warning - {serialDevice.name}: {e}')
         try:
@@ -449,6 +468,7 @@ def requestSerialData(serialDevice, requestString):
     if data:
         return data
     else:
+        print('invalid data: ', data)
         return None
         
 def resetConnection(serialDevice):
@@ -463,6 +483,7 @@ def safeFloat(string):
             return float(string)
         except ValueError:
             return None
+    print('Safe Float - invalid string: ', string)
     return None
 
 # returns None if temperature value is outside of the supported range for the sensor
@@ -471,6 +492,14 @@ def validateTemp(temp):
         return temp
     else:
         return None
+    
+# returns true if the input is a number, false otherwise
+def validNumber(input):
+    if type(input) == int or type(input) == float:
+        return True
+    print(f'Invalid number - input: {input}; type: {type(input)}')
+    return False
+
 
 
 if __name__ == '__main__':
