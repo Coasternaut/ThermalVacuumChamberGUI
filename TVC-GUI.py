@@ -52,9 +52,9 @@ class mainApp(QMainWindow):
         
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
-            'temp': serialDevice('D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
-            'chiller': serialDevice('AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)),
-            'ionGauge': serialDevice('B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=1))
+            'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
+            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.2, rtscts=True)),
+            'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.1))
         }
 
         # reads from each device to initialize COM port
@@ -361,6 +361,7 @@ class dataChannel:
     
 @dataclass
 class serialDevice:
+    name: str
     serialNumber: str
     connectionObject: serial.Serial
     
@@ -426,8 +427,10 @@ def requestSerialData(serialDevice, requestString):
     try:
         serialDevice.connectionObject.reset_input_buffer()
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
-        data = serialDevice.connectionObject.read_until(b'\r').decode('ascii')
-    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error):
+        data = serialDevice.connectionObject.read_until(b'\r').decode('ascii').strip()
+        print(f'Data - {serialDevice.name}: ', data)
+    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
+        print(f'Warning - {serialDevice.name}: {e}')
         try:
             resetConnection(serialDevice)
         except serial.SerialException:
