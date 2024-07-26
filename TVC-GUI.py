@@ -53,8 +53,8 @@ class mainApp(QMainWindow):
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
-            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.2, rtscts=True)),
-            'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.1))
+            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.15, rtscts=True)),
+            'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.15))
         }
 
         # reads from each device to initialize COM port
@@ -107,8 +107,11 @@ class mainApp(QMainWindow):
         
         # get ionization gauge pressure
         ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r')
-        if ionData:
-            ionData = safeFloat(ionData[4:]) # splits data from return header
+        if ionData and ionData[:3] == '*01': # ensures valid return header
+            if ionData[4:] != '9.99E+09': # checks for default return when gauge off
+                ionData = safeFloat(ionData[4:]) # splits data from return header
+            else:
+                ionData = None
         else: 
             ionData = None
             
@@ -175,7 +178,7 @@ class mainApp(QMainWindow):
                 if validNumber(d[1]):
                     yAxis.append(d[1])
                 else:
-                    print('Invalid data for graphing: ', d[1])
+                    #print('Invalid data for graphing: ', d[1])
                     yAxis.append(np.nan)
 
             if channel.singlePlot:
@@ -462,7 +465,7 @@ def requestSerialData(serialDevice, requestString):
     if data:
         return data
     else:
-        print('invalid data: ', data)
+        #print('invalid data: ', data)
         return None
         
 def resetConnection(serialDevice):
