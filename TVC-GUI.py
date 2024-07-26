@@ -480,7 +480,7 @@ def safeFloat(string):
             return float(string)
         except ValueError:
             return None
-    print('Safe Float - invalid string: ', string)
+    #print('Safe Float - invalid string: ', string)
     return None
 
 # returns None if temperature value is outside of the supported range for the sensor
