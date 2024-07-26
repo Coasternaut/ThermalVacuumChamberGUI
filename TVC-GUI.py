@@ -74,6 +74,7 @@ class mainApp(QMainWindow):
         self.plottingTime.setText(str(round((time.time() - clock), 3)))
 
         self.totalTime.setText(str(round((time.time() - loopStartTime), 3)))
+        #print('Update loop complete')
 
     def getNewData(self):
         self.currentTimestamp = time.time()
@@ -153,6 +154,8 @@ class mainApp(QMainWindow):
         elif(self.timeRangeMode == 'range'):
             self.endGraphTimestamp = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
             self.beginGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
+        else:
+            raise ValueError('No time range specified')
             
     def updatePlots(self):
         cur = db.cursor()
@@ -270,6 +273,7 @@ class mainApp(QMainWindow):
                 
     def updateTimeRangeMode(self):
         selection = self.displayTimeBox.currentIndex()
+        print('Selection index: ', selection)
         
         # Last # hours
         if (selection == 0):
@@ -304,6 +308,8 @@ class mainApp(QMainWindow):
             self.displayEndLabel.setEnabled(True)
             self.dateTimeEditBegin.setEnabled(True)
             self.dateTimeEditEnd.setEnabled(True)
+
+        print('New mode: ', self.timeRangeMode)
         
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
@@ -426,8 +432,13 @@ def requestSerialData(serialDevice, requestString):
     data = None
     try:
         serialDevice.connectionObject.reset_input_buffer()
+        #print('buffer reset')
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
-        data = serialDevice.connectionObject.read_until(b'\r').decode('ascii').strip()
+        #print('data written')
+        data = serialDevice.connectionObject.read_until(b'\r')
+        print(f'Bytes - {serialDevice.name}: ', data)
+        print(f'Bytes length - {serialDevice.name}: ', len(data))
+        data = data.decode('ascii').strip()
         print(f'Data - {serialDevice.name}: ', data)
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
         print(f'Warning - {serialDevice.name}: {e}')
