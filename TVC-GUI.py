@@ -78,7 +78,7 @@ class mainApp(QMainWindow):
     def getNewData(self):
         self.currentTimestamp = time.time()
         # gets temp data
-        tempData = readSerialData(self.serialDevices['temp'])
+        tempData = requestSerialData(self.serialDevices['temp'], 'D')
         
         # if temp data exists
         if tempData:

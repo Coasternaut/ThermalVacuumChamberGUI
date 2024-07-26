@@ -3,6 +3,8 @@ const int NUM_SENSORS = 7;
 
 const float aref_voltage = 3.285;
 
+int input = 0;
+
 void setup() {
   Serial.begin(9600);
 
@@ -12,15 +14,17 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  for (int i = 0; i < NUM_SENSORS; i++) {
-    Serial.print(convertCelsius(analogRead(TEMP_PINS[i])));
-    Serial.print(';');
+  if (Serial.available() > 0) {
+    input = Serial.read();
+
+    if (input == 68){ // ASCII for "D"
+      for (int i = 0; i < NUM_SENSORS; i++) {
+        Serial.print(convertCelsius(analogRead(TEMP_PINS[i])));
+        Serial.print(';');
+      }
+      Serial.println();
+    }
   }
-
-  Serial.println();
-
-  delay(1000);
-
 }
 
 float convertCelsius(int reading) {
