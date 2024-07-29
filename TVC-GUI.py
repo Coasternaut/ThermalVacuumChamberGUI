@@ -37,21 +37,25 @@ class mainApp(QMainWindow):
 
         self.startTime = None
         
-        self.dataChannels = {'tempA': dataChannel('temp', 'tempA', 'Temp Sensor A', 'C', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
-                            'tempB': dataChannel('temp', 'tempB', 'Temp Sensor B', 'C', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
-                            'tempC': dataChannel('temp', 'tempC', 'Temp Sensor C', 'C', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
-                            'tempD': dataChannel('temp', 'tempD', 'Temp Sensor D', 'C', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
-                            'tempE': dataChannel('temp', 'tempE', 'Temp Sensor E', 'C', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
-                            'tempF': dataChannel('temp', 'tempF', 'Temp Sensor F', 'C', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
-                            'tempG': dataChannel('temp', 'tempG', 'Temp Sensor G', 'C', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
-                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'C', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
-                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
+        self.dataChannels = {'tempA': dataChannel('temp', 'tempA', 'Temp Sensor A', '°C', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
+                            'tempB': dataChannel('temp', 'tempB', 'Temp Sensor B', '°C', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
+                            'tempC': dataChannel('temp', 'tempC', 'Temp Sensor C', '°C', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
+                            'tempD': dataChannel('temp', 'tempD', 'Temp Sensor D', '°C', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
+                            'tempE': dataChannel('temp', 'tempE', 'Temp Sensor E', '°C', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
+                            'tempF': dataChannel('temp', 'tempF', 'Temp Sensor F', '°C', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
+                            'tempG': dataChannel('temp', 'tempG', 'Temp Sensor G', '°C', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
+                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', '°C', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
+                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', '°C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
                             'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'Torr', self.ionPlot, self.ionLabel, self.ionValue)
                             }
         
         # initializes graphs
         for channel in self.dataChannels.values():
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+            channel.plot.setLabel('bottom', 'Time')
+            if channel.type == 'temp':
+                #channel.plot.setAxisItems(axisItems = {celsiusAxisItem('left')})
+                channel.plot.setLabel('left', 'Temperature', units=channel.unit)
 
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
