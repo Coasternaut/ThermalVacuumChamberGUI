@@ -473,7 +473,7 @@ def requestSerialData(serialDevice, requestString, minByteLength):
         data = data.decode('ascii').strip()
         #print(f'Data - {serialDevice.name}: ', data)
     except (serial.serialutil.SerialTimeoutException) as e:
-        print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
+        #print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
         return None
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
         print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
