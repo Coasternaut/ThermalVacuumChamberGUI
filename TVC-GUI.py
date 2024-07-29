@@ -82,7 +82,7 @@ class mainApp(QMainWindow):
     def getNewData(self):
         self.currentTimestamp = time.time()
         # gets temp data
-        tempData = requestSerialData(self.serialDevices['temp'], 'D')
+        tempData = requestSerialData(self.serialDevices['temp'], 'D', 36)
         
         # if temp data exists
         if tempData:
@@ -100,16 +100,20 @@ class mainApp(QMainWindow):
         clock = time.time()
         
         # get bath temp
-        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r'))
+        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 5))
         
-        # get temperature setpoint
-        self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r'))
+        # only gets setpoint if bath temp was valid
+        if self.dataChannels['bath_temp'].currentValue != None:
+            # get temperature setpoint
+            self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 5))
+        else:
+            self.dataChannels['temp_setpoint'].currentValue = None
 
         self.chillerTime.setText(str(round((time.time() - clock), 3)))
         clock = time.time()
         
         # get ionization gauge pressure
-        ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r')
+        ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13)
         if ionData and ionData[:3] == '*01': # ensures valid return header
             if ionData[4:] != '9.99E+09': # checks for default return when gauge off
                 ionData = safeFloat(ionData[4:]) # splits data from return header
@@ -447,7 +451,7 @@ def writeSerialData(serialDevice, dataString):
             # print('Failed to reopen connection and write data')
             return False
         
-def requestSerialData(serialDevice, requestString):
+def requestSerialData(serialDevice, requestString, minByteLength):
     data = None
     try:
         serialDevice.connectionObject.reset_input_buffer()
@@ -457,6 +461,9 @@ def requestSerialData(serialDevice, requestString):
         # if serialDevice.name == 'chiller':
         #     print(f'{datetime.datetime.now()}  Writing to {serialDevice.name}: {bytes(requestString, 'ascii')}')
         data = serialDevice.connectionObject.read_until(b'\r')
+        if len(data) < minByteLength:
+            print(f'{datetime.datetime.now()}  Return too short   Device: {serialDevice.name}   Data: {data}  Min Length: {minByteLength}   Actual Length: {len(data)}')
+            return None
         # if serialDevice.name == 'chiller':
         #     print(f'{datetime.datetime.now()}  Reading from {serialDevice.name}: {data}')
             #print(f'Bytes length - {serialDevice.name}: ', len(data))
