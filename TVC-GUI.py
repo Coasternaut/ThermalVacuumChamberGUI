@@ -56,7 +56,7 @@ class mainApp(QMainWindow):
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
-            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.1, write_timeout=.1, rtscts=True)),
+            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.15, write_timeout=.1, rtscts=True)),
             'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.1, write_timeout=.05))
         }
 
@@ -86,7 +86,7 @@ class mainApp(QMainWindow):
         
         # if temp data exists
         if tempData:
-            # converts data string into list of floats
+            # converts data string into list of floatsMin Length: {minByteLength}   Actual Length: {dataLen}'
             tempValuesStr = tempData.split(';')
             tempValuesStr.pop()
             
@@ -100,12 +100,12 @@ class mainApp(QMainWindow):
         clock = time.time()
         
         # get bath temp
-        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 5))
+        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 4))
         
         # only gets setpoint if bath temp was valid
         if self.dataChannels['bath_temp'].currentValue != None:
             # get temperature setpoint
-            self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 5))
+            self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 4))
         else:
             self.dataChannels['temp_setpoint'].currentValue = None
 
@@ -485,7 +485,7 @@ def requestSerialData(serialDevice, requestString, minByteLength):
     if data:
         return data
     else:
-        #print('invalid data: ', data)
+        print(f'{datetime.datetime.now()}  Data not True   Device: {serialDevice.name}   Data: {data}')
         return None
         
 def resetConnection(serialDevice):
