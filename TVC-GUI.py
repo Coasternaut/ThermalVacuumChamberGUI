@@ -72,8 +72,10 @@ class mainApp(QMainWindow):
     def updateUI(self):
         loopStartTime = time.time()
 
-        self.getNewData()
-        self.updateValueDisplays()
+        if self.currentMode == 'live':
+            self.getNewData()
+            self.updateValueDisplays()
+
         self.updateTimeRanges()
 
         clock = time.time()
@@ -346,6 +348,8 @@ class mainApp(QMainWindow):
             self.dateTimeEditEnd.setEnabled(True)
 
         print('New mode: ', self.timeRangeMode)
+        if self.currentMode == 'replay':
+            self.updateUI()
         
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
