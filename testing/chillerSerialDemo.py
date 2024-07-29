@@ -1,12 +1,22 @@
-import serial, time
+import serial, serial.tools.list_ports, time
 
-ser = serial.Serial('/dev/ttyUSB0', 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
+def getDevicePath(serialNumber):
+    for port in serial.tools.list_ports.comports():
+        if port.serial_number == serialNumber:
+            return port.device
+    
+    return None
 
-# sets temp
-ser.write(bytes('out_sp_00 21.1\r', 'ascii'))
+ser = serial.Serial(getDevicePath('AL066BK6'), 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=1, rtscts=True)
 
-time.sleep(.1)
+ser.reset_input_buffer()
+
+clock = time.time()
 ser.write(bytes('in_sp_00\r', 'ascii'))
+print("Write time: ", time.time() - clock)
 
-data = float(ser.readline().decode('ascii'))
-print(data)
+clock = time.time()
+data = ser.read_until(b'\r')
+print("Read time: ", time.time() - clock)
+
+print("Data: ", data, ' Length: ', len(data))
