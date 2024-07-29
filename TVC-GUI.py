@@ -148,6 +148,7 @@ class mainApp(QMainWindow):
     def updateTimeRanges(self):
         
         if self.currentMode == 'replay':
+                self.startTime = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
                 currentTime = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
         else:
                 currentTime = time.time()
@@ -158,7 +159,7 @@ class mainApp(QMainWindow):
             self.beginGraphTimestamp = currentTime - (self.hoursBox.value() * 3600) # 3600 sec/hr
         # Full time
         elif (self.timeRangeMode == 'full'):
-            self.endGraphTimestamp = time.time()
+            self.endGraphTimestamp = currentTime
             self.beginGraphTimestamp = self.startTime
         # custom range
         elif(self.timeRangeMode == 'range'):
@@ -176,6 +177,7 @@ class mainApp(QMainWindow):
                             (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
             data = cur.fetchall()
 
+            #print(f'Reading from {channel.dbName} - Length Data: {len(data)}')
 
             xAxis = []
             yAxis = []
