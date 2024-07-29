@@ -451,18 +451,25 @@ def requestSerialData(serialDevice, requestString):
     data = None
     try:
         serialDevice.connectionObject.reset_input_buffer()
-        #print('buffer reset')
+        # if serialDevice.name == 'chiller':
+        #     print('buffer reset')
         serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
-        #print('data written')
+        # if serialDevice.name == 'chiller':
+        #     print(f'{datetime.datetime.now()}  Writing to {serialDevice.name}: {bytes(requestString, 'ascii')}')
         data = serialDevice.connectionObject.read_until(b'\r')
-        #print(f'Bytes - {serialDevice.name}: ', data)
-        #print(f'Bytes length - {serialDevice.name}: ', len(data))
+        # if serialDevice.name == 'chiller':
+        #     print(f'{datetime.datetime.now()}  Reading from {serialDevice.name}: {data}')
+            #print(f'Bytes length - {serialDevice.name}: ', len(data))
         data = data.decode('ascii').strip()
         #print(f'Data - {serialDevice.name}: ', data)
+    except (serial.serialutil.SerialTimeoutException) as e:
+        print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
+        return None
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
-        #print(f'Warning - {serialDevice.name}: {e}')
+        print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
         try:
             resetConnection(serialDevice)
+            return None
         except serial.SerialException:
             return None
     if data:
