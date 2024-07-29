@@ -14,6 +14,9 @@ class mainApp(QMainWindow):
         super().__init__()
         uic.loadUi("TVC-GUI-UI.ui", self)
 
+        # config settings
+        self.minYBorder = 2
+
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         self.displayTimeBox.currentTextChanged.connect(self.updateTimeRangeMode)
@@ -186,15 +189,15 @@ class mainApp(QMainWindow):
                 channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
 
             if channel.type == 'temp':
-                minYBorder = 2
-
                 yMin = min(yAxis)
                 yMax = max(yAxis)
 
-                yRangeMin = min(yMin * 0.95, yMin - minYBorder)
-                yRangeMax = max(yMax * 1.05, yMax + minYBorder)
+                yRangeMin = min(yMin * 0.95, yMin - self.minYBorder)
+                yRangeMax = max(yMax * 1.05, yMax + self.minYBorder)
 
-                channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
+                if not (np.isnan(yRangeMin) or np.isnan(yRangeMax)):
+                    #print(f'Updating Y range - Channel: {channel.dbName} Min: {yRangeMin}, Max: {yRangeMax}')
+                    channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
 
             channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
             
