@@ -461,8 +461,11 @@ def requestSerialData(serialDevice, requestString, minByteLength):
         # if serialDevice.name == 'chiller':
         #     print(f'{datetime.datetime.now()}  Writing to {serialDevice.name}: {bytes(requestString, 'ascii')}')
         data = serialDevice.connectionObject.read_until(b'\r')
-        if len(data) < minByteLength:
-            print(f'{datetime.datetime.now()}  Return too short   Device: {serialDevice.name}   Data: {data}  Min Length: {minByteLength}   Actual Length: {len(data)}')
+        dataLen = len(data)
+        if dataLen < minByteLength:
+            # log if some data is read
+            if dataLen != 0:
+                print(f'{datetime.datetime.now()}  Return too short   Device: {serialDevice.name}   Data: {data}  Min Length: {minByteLength}   Actual Length: {dataLen}')
             return None
         # if serialDevice.name == 'chiller':
         #     print(f'{datetime.datetime.now()}  Reading from {serialDevice.name}: {data}')
