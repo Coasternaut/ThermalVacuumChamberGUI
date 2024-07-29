@@ -220,7 +220,7 @@ class mainApp(QMainWindow):
         
         openDB() # creates new database file
         
-        db.execute("CREATE TABLE data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, pump_pres, temp_setpoint, ion_pressure)")
+        db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)")
         
         # sets beginning of time range if 
         if not self.startTime:
@@ -229,10 +229,14 @@ class mainApp(QMainWindow):
         
         # starts threads to gather data and timer to refresh UI
         self.updateUITimer.start()
+        self.startButton.setEnabled(False)
+        self.stopButton.setEnabled(True)
 
     # stops logging data
     def stopLogging(self):
         self.updateUITimer.stop()
+        self.startButton.setEnabled(True)
+        self.stopButton.setEnabled(False)
         
     # imports stored data from a database file
     def openDatabaseFile(self): 
@@ -252,6 +256,9 @@ class mainApp(QMainWindow):
         self.updateTimeRangeMode()
         self.updateTimeRanges()
         self.updatePlots()
+
+        self.startButton.setEnabled(False)
+        self.stopButton.setEnabled(False)
     
     def saveLabels(self):
         global db

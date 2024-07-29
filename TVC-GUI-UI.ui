@@ -62,7 +62,7 @@
      <item>
       <widget class="QPushButton" name="stopButton">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
