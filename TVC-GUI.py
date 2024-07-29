@@ -56,8 +56,8 @@ class mainApp(QMainWindow):
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
-            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.15, write_timeout=.15, rtscts=True)),
-            'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.15, write_timeout=.15))
+            'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.1, write_timeout=.1, rtscts=True)),
+            'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.1, write_timeout=.05))
         }
 
         # reads from each device to initialize COM port
