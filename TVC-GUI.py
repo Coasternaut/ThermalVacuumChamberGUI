@@ -16,6 +16,7 @@ class mainApp(QMainWindow):
 
         # config settings
         self.minYBorder = 2
+        self.tempUnit = '°C'
 
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
@@ -51,7 +52,7 @@ class mainApp(QMainWindow):
         
         # initializes graphs
         for channel in self.dataChannels.values():
-            channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
+            channel.plot.setAxisItems(axisItems = {'bottom': customDateAxisItem()})
             channel.plot.setLabel('bottom', 'Time')
             if channel.type == 'temp':
                 #channel.plot.setAxisItems(axisItems = {celsiusAxisItem('left')})
@@ -530,7 +531,13 @@ def validNumber(input):
     #print(f'Invalid number - input: {input}; type: {type(input)}')
     return False
 
+class customDateAxisItem(pg.DateAxisItem):
+    def __init__(self, orientation='bottom', utcOffset=None, **kwargs):
+        super().__init__(orientation, utcOffset, **kwargs)
 
+    def tickStrings(self, values, scale, spacing):
+        return [datetime.date.fromtimestamp(value).strftime('%m-%d %H:%M:%S') for value in values] 
+    
 
 if __name__ == '__main__':
     
