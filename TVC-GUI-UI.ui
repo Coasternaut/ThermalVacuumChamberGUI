@@ -882,6 +882,75 @@
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="formLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>1010</x>
+      <y>60</y>
+      <width>231</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <layout class="QFormLayout" name="formLayout_6">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Temperature Unit:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Pressure Unit:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="tempUnitBox">
+       <item>
+        <property name="text">
+         <string>°C</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>°F</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>K</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="presUnitBox">
+       <item>
+        <property name="text">
+         <string>Torr</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Pa</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>inHg</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Atm</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

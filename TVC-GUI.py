@@ -21,6 +21,9 @@ class mainApp(QMainWindow):
         self.stopButton.pressed.connect(self.stopLogging)
         self.displayTimeBox.currentTextChanged.connect(self.updateTimeRangeMode)
         self.applyCustomRangeButton.pressed.connect(self.updatePlots)
+
+        self.tempUnitBox.currentTextChanged.connect(self.updateYAxisUnits)
+        self.presUnitBox.currentTextChanged.connect(self.updateYAxisUnits)
         
         self.renameButton.pressed.connect(self.saveLabels)
         
@@ -38,29 +41,34 @@ class mainApp(QMainWindow):
 
         self.startTime = None
         
-        self.dataChannels = {'tempA': dataChannel('temp', 'tempA', 'Temp Sensor A', '°C', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
-                            'tempB': dataChannel('temp', 'tempB', 'Temp Sensor B', '°C', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
-                            'tempC': dataChannel('temp', 'tempC', 'Temp Sensor C', '°C', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
-                            'tempD': dataChannel('temp', 'tempD', 'Temp Sensor D', '°C', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
-                            'tempE': dataChannel('temp', 'tempE', 'Temp Sensor E', '°C', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
-                            'tempF': dataChannel('temp', 'tempF', 'Temp Sensor F', '°C', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
-                            'tempG': dataChannel('temp', 'tempG', 'Temp Sensor G', '°C', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
-                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', '°C', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
-                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', '°C', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
-                            'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'Torr', self.ionPlot, self.ionLabel, self.ionValue)
+        self.dataChannels = {'tempA': dataChannel('tempArd', 'tempA', 'Temp Sensor A', 'temp', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
+                            'tempB': dataChannel('tempArd', 'tempB', 'Temp Sensor B', 'temp', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
+                            'tempC': dataChannel('tempArd', 'tempC', 'Temp Sensor C', 'temp', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
+                            'tempD': dataChannel('tempArd', 'tempD', 'Temp Sensor D', 'temp', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
+                            'tempE': dataChannel('tempArd', 'tempE', 'Temp Sensor E', 'temp', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
+                            'tempF': dataChannel('tempArd', 'tempF', 'Temp Sensor F', 'temp', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
+                            'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
+                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'temp', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
+                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'temp', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
+                            'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionLabel, self.ionValue)
                             }
+        
+        # current display units for each dataCategory. Values set in updateYAxisUnits()
+        self.currentUnits = {
+            'temp': '',
+            'pres': ''
+        }
         
         # initializes graphs
         for channel in self.dataChannels.values():
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
             channel.plot.setLabel('bottom', 'Time')
-            if channel.type == 'temp':
-                #channel.plot.setAxisItems(axisItems = {celsiusAxisItem('left')})
-                channel.plot.setLabel('left', 'Temperature', units=channel.unit)
+
+        self.updateYAxisUnits()
 
         self.timeRangeMode = 'hours'
         self.serialDevices  = {
-            'temp': serialDevice('temp', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
+            'tempArd': serialDevice('tempArd', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
             'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.15, write_timeout=.1, rtscts=True)),
             'ionGauge': serialDevice('ionGauge', 'B001YA5C', serial.Serial(None, 19200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=.1, write_timeout=.05))
         }
@@ -82,7 +90,7 @@ class mainApp(QMainWindow):
     def getNewData(self):
         self.currentTimestamp = time.time()
         # gets temp data
-        tempData = requestSerialData(self.serialDevices['temp'], 'D', 36)
+        tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 36)
         
         # if temp data exists
         if tempData:
@@ -137,8 +145,9 @@ class mainApp(QMainWindow):
     
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
-            if validNumber(channel.currentValue):
-                channel.currentValueDisplay.setText(f'{channel.currentValue} {channel.unit}')
+            value = self.convertUnit(channel.currentValue, channel.dataCategory)
+            if value:
+                channel.currentValueDisplay.setText(f'{value} {self.currentUnits[channel.dataCategory]}')
                 channel.currentValueDisplay.setStyleSheet('color: black; font-size: 16px')
             else:
                 channel.currentValueDisplay.setText('No Data')
@@ -185,8 +194,9 @@ class mainApp(QMainWindow):
 
             for d in data:
                 xAxis.append(d[0])
-                if validNumber(d[1]):
-                    yAxis.append(d[1])
+                yValue = self.convertUnit(d[1], channel.dataCategory)
+                if yValue:
+                    yAxis.append(yValue)
                 else:
                     #print('Invalid data for graphing: ', d[1])
                     yAxis.append(np.nan)
@@ -195,7 +205,7 @@ class mainApp(QMainWindow):
                 channel.plot.clear()
                 channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
 
-            if channel.type != 'chiller' and yAxis:
+            if channel.device != 'chiller' and yAxis:
                 yMin = min(yAxis)
                 yMax = max(yAxis)
 
@@ -380,7 +390,36 @@ class mainApp(QMainWindow):
             data.append(channel.currentValue)
     
         return tuple(data)
-            
+    
+    def updateYAxisUnits(self):
+        self.currentUnits['temp'] = str(self.tempUnitBox.currentText())
+        self.currentUnits['pres'] = str(self.presUnitBox.currentText())
+        for channel in self.dataChannels.values():
+            if channel.dataCategory == 'temp':
+                channel.plot.setLabel('left', 'Temperature', units=self.currentUnits['temp'])
+            if channel.dataCategory == 'pres':
+                channel.plot.setLabel('left', 'Pressure', units=self.currentUnits['pres'])
+    
+    def convertUnit(self, value, dataCategory):
+        if validNumber(value):
+            if dataCategory == 'temp':
+                if self.currentUnits['temp'] == '°C':
+                    return value
+                if self.currentUnits['temp'] == '°F':
+                    return round((value * 1.8) + 32, 2)
+                if self.currentUnits['temp'] == 'K':
+                    return round(value + 273.15, 2)
+            if dataCategory == 'pres':
+                if self.currentUnits['pres'] == 'Torr':
+                    return value
+                if self.currentUnits['temp'] == 'Pa':
+                    return round(value * 133.322, 2)
+                if self.currentUnits['temp'] == 'inHg':
+                    return round(value / 25.4, 2)
+                if self.currentUnits['temp'] == 'Atm':
+                    return round(value / 760.0, 2)
+        return None
+        
             
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
@@ -391,10 +430,10 @@ def QDateTimeFromTimestamp(timestamp):
                 
 @dataclass       
 class dataChannel:
-    type: str
+    device: str
     dbName: str
     label: str
-    unit: str
+    dataCategory: str
     plot: any
     labelDisplay: any
     currentValueDisplay: any
