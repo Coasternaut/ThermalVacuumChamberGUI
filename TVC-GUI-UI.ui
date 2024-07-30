@@ -251,7 +251,7 @@
       <x>1285</x>
       <y>10</y>
       <width>331</width>
-      <height>143</height>
+      <height>179</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
@@ -365,6 +365,16 @@
        </property>
        <property name="value">
         <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QPushButton" name="applyCustomRangeButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Apply Custom Range</string>
        </property>
       </widget>
      </item>

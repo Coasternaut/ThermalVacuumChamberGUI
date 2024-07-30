@@ -20,6 +20,7 @@ class mainApp(QMainWindow):
         self.startButton.pressed.connect(self.startLogging)
         self.stopButton.pressed.connect(self.stopLogging)
         self.displayTimeBox.currentTextChanged.connect(self.updateTimeRangeMode)
+        self.applyCustomRangeButton.pressed.connect(self.updatePlots)
         
         self.renameButton.pressed.connect(self.saveLabels)
         
@@ -319,6 +320,7 @@ class mainApp(QMainWindow):
             self.displayEndLabel.setEnabled(False)
             self.dateTimeEditBegin.setEnabled(False)
             self.dateTimeEditEnd.setEnabled(False)
+            self.applyCustomRangeButton.setEnabled(False)
         # Full time
         if (selection == 1):
             self.timeRangeMode = 'full'
@@ -330,6 +332,7 @@ class mainApp(QMainWindow):
             self.displayEndLabel.setEnabled(False)
             self.dateTimeEditBegin.setEnabled(False)
             self.dateTimeEditEnd.setEnabled(False)
+            self.applyCustomRangeButton.setEnabled(False)
         # Custom range
         elif (selection == 2):
             self.timeRangeMode = 'range'
@@ -341,6 +344,7 @@ class mainApp(QMainWindow):
             self.displayEndLabel.setEnabled(True)
             self.dateTimeEditBegin.setEnabled(True)
             self.dateTimeEditEnd.setEnabled(True)
+            self.applyCustomRangeButton.setEnabled(True)
 
         #print('New mode: ', self.timeRangeMode)
         self.updatePlots()
