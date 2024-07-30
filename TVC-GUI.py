@@ -29,9 +29,9 @@ class mainApp(QMainWindow):
         # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
         
-        self.updateUITimer = QTimer(self)
-        self.updateUITimer.setInterval(1000)
-        self.updateUITimer.timeout.connect(self.updateUI)
+        self.liveUpdateLoopTimer = QTimer(self)
+        self.liveUpdateLoopTimer.setInterval(1000)
+        self.liveUpdateLoopTimer.timeout.connect(self.liveUpdateLoop)
         
         self.currentMode = 'live'
 
@@ -68,22 +68,15 @@ class mainApp(QMainWindow):
         for device in self.serialDevices.values():
             readSerialData(device)
 
-    # main loop to update 
-    def updateUI(self):
+    # loop called every second when in live logging mode
+    def liveUpdateLoop(self):
         loopStartTime = time.time()
 
-        if self.currentMode == 'live':
-            self.getNewData()
-            self.updateValueDisplays()
-
-        self.updateTimeRanges()
-
-        clock = time.time()
+        self.getNewData()
+        self.updateValueDisplays()
         self.updatePlots()
-        self.plottingTime.setText(str(round((time.time() - clock), 3)))
-
+        
         self.totalTime.setText(str(round((time.time() - loopStartTime), 3)))
-        #print('Update loop complete')
 
     def getNewData(self):
         self.currentTimestamp = time.time()
@@ -150,9 +143,10 @@ class mainApp(QMainWindow):
                 channel.currentValueDisplay.setText('No Data')
                 channel.currentValueDisplay.setStyleSheet('color: red; font-size: 16px')
                 
-     # calculates the time range displayed on the graph
-    def updateTimeRanges(self):
-        
+    def updatePlots(self):
+        clock = time.time()
+
+        # sets time ranges for plotting
         if self.currentMode == 'replay':
                 self.startTime = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
                 currentTime = self.dateTimeEditEnd.dateTime().toSecsSinceEpoch()
@@ -173,8 +167,8 @@ class mainApp(QMainWindow):
             self.beginGraphTimestamp = self.dateTimeEditBegin.dateTime().toSecsSinceEpoch()
         else:
             raise ValueError('No time range specified')
-            
-    def updatePlots(self):
+        
+
         cur = db.cursor()
         #plots data
         for channel in self.dataChannels.values():
@@ -212,6 +206,7 @@ class mainApp(QMainWindow):
                     channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
 
             channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
+        self.plottingTime.setText(str(round((time.time() - clock), 3)))
             
             
     # sets the time begin and end boxes based on the first and last entry in the database
@@ -236,13 +231,13 @@ class mainApp(QMainWindow):
             self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         
         # starts threads to gather data and timer to refresh UI
-        self.updateUITimer.start()
+        self.liveUpdateLoopTimer.start()
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(True)
 
     # stops logging data
     def stopLogging(self):
-        self.updateUITimer.stop()
+        self.liveUpdateLoopTimer.stop()
         self.startButton.setEnabled(True)
         self.stopButton.setEnabled(False)
         
@@ -262,7 +257,7 @@ class mainApp(QMainWindow):
         
         # updates UI with new data
         self.updateTimeRangeMode()
-        self.updateTimeRanges()
+        
         self.updatePlots()
 
         self.startButton.setEnabled(False)
@@ -348,8 +343,7 @@ class mainApp(QMainWindow):
             self.dateTimeEditEnd.setEnabled(True)
 
         print('New mode: ', self.timeRangeMode)
-        if self.currentMode == 'replay':
-            self.updateUI()
+        self.updatePlots()
         
     def exportData(self):    
         df = pd.read_sql_query("SELECT * FROM data_log", db)
