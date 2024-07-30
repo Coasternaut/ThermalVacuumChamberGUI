@@ -200,7 +200,7 @@ class mainApp(QMainWindow):
                 channel.plot.clear()
                 channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
 
-            if channel.type == 'temp':
+            if channel.type != 'chiller' and yAxis:
                 yMin = min(yAxis)
                 yMax = max(yAxis)
 
