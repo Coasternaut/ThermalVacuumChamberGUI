@@ -306,7 +306,7 @@ class mainApp(QMainWindow):
                 
     def updateTimeRangeMode(self):
         selection = self.displayTimeBox.currentIndex()
-        print('Selection index: ', selection)
+        #print('Selection index: ', selection)
         
         # Last # hours
         if (selection == 0):
@@ -342,7 +342,7 @@ class mainApp(QMainWindow):
             self.dateTimeEditBegin.setEnabled(True)
             self.dateTimeEditEnd.setEnabled(True)
 
-        print('New mode: ', self.timeRangeMode)
+        #print('New mode: ', self.timeRangeMode)
         self.updatePlots()
         
     def exportData(self):    
