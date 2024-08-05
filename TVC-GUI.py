@@ -27,8 +27,8 @@ class mainApp(QMainWindow):
         
         self.renameButton.pressed.connect(self.saveLabels)
         
-        self.actionSave.triggered.connect(self.exportData)
-        self.actionOpen.triggered.connect(self.openDatabaseFile)
+        self.exportCSVbutton.pressed.connect(self.exportData)
+        self.openDBbutton.pressed.connect(self.openDatabaseFile)
         
         # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())

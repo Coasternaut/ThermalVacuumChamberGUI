@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1800</width>
-    <height>1040</height>
+    <height>1030</height>
    </rect>
   </property>
   <property name="font">
@@ -19,31 +19,13 @@
    <string>Thermal Vacuum Chamber GUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="title">
-    <property name="geometry">
-     <rect>
-      <x>1270</x>
-      <y>700</y>
-      <width>468</width>
-      <height>44</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>24</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Thermal Vacuum Chamber GUI</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>1630</x>
       <y>10</y>
       <width>160</width>
-      <height>80</height>
+      <height>176</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -74,13 +56,27 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="exportCSVbutton">
+       <property name="text">
+        <string>Export to CSV</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="openDBbutton">
+       <property name="text">
+        <string>Open DB file</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>730</y>
+      <y>740</y>
       <width>371</width>
       <height>231</height>
      </rect>
@@ -582,7 +578,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>730</y>
+      <y>740</y>
       <width>441</width>
       <height>231</height>
      </rect>
@@ -731,9 +727,9 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>210</y>
+      <y>220</y>
       <width>371</width>
-      <height>281</height>
+      <height>341</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -885,27 +881,13 @@
    <widget class="QWidget" name="formLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>1010</x>
-      <y>60</y>
+      <x>1040</x>
+      <y>10</y>
       <width>231</width>
-      <height>80</height>
+      <height>96</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_6">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>Temperature Unit:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_18">
-       <property name="text">
-        <string>Pressure Unit:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="tempUnitBox">
        <item>
@@ -923,6 +905,13 @@
          <string>K</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Pressure Unit:</string>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -949,26 +938,15 @@
        </item>
       </widget>
      </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Temperature Unit:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1800</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionOpen"/>
-    <addaction name="actionSave"/>
-   </widget>
-   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
