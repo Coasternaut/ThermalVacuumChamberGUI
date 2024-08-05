@@ -1,4 +1,4 @@
-const uint8_t TEMP_PINS[] = {A6, A5, A4, A3, A1, A0, A2};
+const uint8_t TEMP_PINS[] = {A2, A0, A1, A3, A5, A6, A4};
 const int NUM_SENSORS = 7;
 
 const float aref_voltage = 3.285;
