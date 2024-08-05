@@ -29,6 +29,10 @@ class mainApp(QMainWindow):
         
         self.exportCSVbutton.pressed.connect(self.exportData)
         self.openDBbutton.pressed.connect(self.openDatabaseFile)
+
+        self.chillerSetButton.pressed.connect(self.setChillerSetpoint)
+        self.startChillerButton.pressed.connect(self.startChiller)
+        self.stopChillerButton.pressed.connect(self.stopChiller)
         
         # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
@@ -419,8 +423,32 @@ class mainApp(QMainWindow):
                 if self.currentUnits['temp'] == 'Atm':
                     return round(value / 760.0, 2)
         return None
-        
-            
+    
+    def setChillerSetpoint(self):
+        newValue = self.chillerSetInput.value()
+        writeMessage = f'out_sp_00 {newValue}\r'
+        print(f'Setting chiller setpoint to {newValue}. Output: ', writeSerialData(self.serialDevices['chiller'], writeMessage))
+
+    def startChiller(self):
+        print('Starting chiller')
+        if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 1\r'):
+            self.startChillerButton.setEnabled(False)
+            self.stopChillerButton.setEnabled(True)
+            print('Chiller on')
+        # print(startWriteStatus)
+        # if startWriteStatus:
+        #     requestedStatus = requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1)
+        #     print(requestedStatus)
+        #     print('Chiller on')
+
+    def stopChiller(self):
+        print('Stopping chiller')
+        if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 0\r'):
+            self.startChillerButton.setEnabled(True)
+            self.stopChillerButton.setEnabled(False)
+            print('Chiller off')
+            # if requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1) == 0:
+
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
     dt = QDateTime(0,0,0,0,0) # placeholder
@@ -492,18 +520,19 @@ def readSerialData(serialDevice):
 # returns True if successful, False otherwise
 def writeSerialData(serialDevice, dataString):
     try:
-        print('First data write: ', dataString)
         serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
         return True
-    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
+    except (serial.serialutil.PortNotOpenError):
         try:
             resetConnection(serialDevice)
             print('Second data write: ', dataString)
             serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
             return True
-        except serial.SerialException:
-            # print('Failed to reopen connection and write data')
+        except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error):
+            print('Failed to reopen connection and write data')
             return False
+    except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error):
+        return False
         
 def requestSerialData(serialDevice, requestString, minByteLength):
     data = None
@@ -516,6 +545,7 @@ def requestSerialData(serialDevice, requestString, minByteLength):
         #     print(f'{datetime.datetime.now()}  Writing to {serialDevice.name}: {bytes(requestString, 'ascii')}')
         data = serialDevice.connectionObject.read_until(b'\r')
         dataLen = len(data)
+        # print(f'Data: {data} - Data len: {dataLen}')
         if dataLen < minByteLength:
             # log if some data is read
             if dataLen != 0:
@@ -523,7 +553,7 @@ def requestSerialData(serialDevice, requestString, minByteLength):
             return None
         # if serialDevice.name == 'chiller':
         #     print(f'{datetime.datetime.now()}  Reading from {serialDevice.name}: {data}')
-            #print(f'Bytes length - {serialDevice.name}: ', len(data))
+        #     print(f'Bytes length - {serialDevice.name}: ', len(data))
         data = data.decode('ascii').strip()
         #print(f'Data - {serialDevice.name}: ', data)
     except (serial.serialutil.SerialTimeoutException) as e:
