@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=TVac GUI
+Version=1.0
+Exec=/usr/bin/python3 /home/dspoc/Desktop/ThermalVacuumChamberGUI/TVC-GUI.py
+Terminal=true
+Type=Application
