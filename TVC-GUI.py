@@ -364,6 +364,15 @@ class mainApp(QMainWindow):
         self.updatePlots()
         
     def exportData(self):    
+        savePath = str(QFileDialog.getSaveFileName(self, 'Export CSV')[0])
+        # print('Save path: ', savePath)
+
+        if savePath.endswith('/'):
+            savePath += f'{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv'
+        elif not savePath.endswith('.csv'):
+            savePath += '.csv'
+
+        # print('Final save path: ', savePath)
         df = pd.read_sql_query("SELECT * FROM data_log", db)
         
         labels = [channel.label for channel in self.dataChannels.values()]
@@ -372,7 +381,7 @@ class mainApp(QMainWindow):
         for i in range(1, 8):
             df.rename(columns={df.columns[i]: labels[i - 1]}, inplace=True)
                 
-        df.to_csv(f'exports/export{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.csv')
+        df.to_csv(savePath)
 
     # adjusts UI elements based on new mode
     def setMode(self, newMode: str):
