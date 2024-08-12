@@ -3,7 +3,7 @@
 const uint8_t TEMP_PINS[] = {A2, A0, A1, A3, A5, A6, A4};
 const int NUM_SENSORS = 7;
 
-const float AREF_VOLTAGE = 3.285;
+const long AREF_uV = 3285000;
 
 int input = 0;
 
@@ -62,6 +62,13 @@ void loop() {
         Serial.println(analogRead(TEMP_PINS[0]));
       }
     }
+//    if (input == 77) { // ASCII for "M" prints readings in millivolts
+//      for (int i = 0; i < NUM_SENSORS; i++) {
+//        Serial.print(convert_mV(sensorAvgs[i].getAvg()));
+//        Serial.print(';');
+//      }
+//      Serial.println('\r');
+//    }
 
    input = 0;
  }
@@ -71,12 +78,12 @@ void loop() {
 
       // adds new reading to rolling average
       for (int j = 0; j < READS_PER_CYCLE; j++) {
-        sensorAvgs[i].reading(analogRead(TEMP_PINS[i]));
+        sensorAvgs[i].reading(ADC_to_Celsius100(analogRead(TEMP_PINS[i])));
       }
       
       // prints temperature data if requested
       if (outputValues) {
-        Serial.print(convertCelsius(sensorAvgs[i].getAvg()));
+        Serial.print((sensorAvgs[i].getAvg()) / 100.0);
         Serial.print(';');
       }
 
@@ -91,15 +98,24 @@ void loop() {
   // limits loop speed
   delay(LOOP_DELAY_MS);
 }
+//
+//float convertCelsius(int mV) {
+//  //float mV = reading * (AREF_VOLTAGE / 1024.0);
+//  // Serial.print(mV);
+//  // Serial.println(" millivolts");
+//
+//  float celsius = (mV - 500) / 10.0;
+//  // Serial.print(celsius);
+//  // Serial.println(" degrees C");
+//
+//  return celsius;
+//}
 
-float convertCelsius(int reading) {
-  float mV = reading * (AREF_VOLTAGE / 1024.0);
-  // Serial.print(mV);
-  // Serial.println(" millivolts");
+//long convert_mV(int reading) {
+//   (reading * AREF_mV) / 1024;
+//}
 
-  float celsius = (mV - 0.5) * 100;
-  // Serial.print(celsius);
-  // Serial.println(" degrees C");
-
-  return celsius;
+int ADC_to_Celsius100(int reading) {
+  long uV = (reading * AREF_uV) / 1024;
+  return (uV - 500000) / 100;
 }
