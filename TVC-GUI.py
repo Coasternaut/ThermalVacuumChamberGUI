@@ -419,9 +419,9 @@ class mainApp(QMainWindow):
                 if self.currentUnits['temp'] == '°C':
                     return value
                 if self.currentUnits['temp'] == '°F':
-                    return round((value * 1.8) + 32, 2)
+                    return round((value * 1.8) + 32, 1)
                 if self.currentUnits['temp'] == 'K':
-                    return round(value + 273.15, 2)
+                    return round(value + 273.15, 1)
             if dataCategory == 'pres':
                 if self.currentUnits['pres'] == 'Torr':
                     return value
