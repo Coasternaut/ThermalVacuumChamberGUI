@@ -18,8 +18,18 @@ void loop() {
     input = Serial.read();
 
     if (input == 68){ // ASCII for "D"
+
+      // iterates through all temperature sensors
       for (int i = 0; i < NUM_SENSORS; i++) {
-        Serial.print(convertCelsius(analogRead(TEMP_PINS[i])));
+
+        // averages 10 values a specific sensor
+        int averageSum = 0;
+
+        for (int j = 0; j < 10; j++) {
+          averageSum += analogRead(TEMP_PINS[i]);
+        }
+        
+        Serial.print(convertCelsius(averageSum / 10));
         Serial.print(';');
       }
       Serial.println();
