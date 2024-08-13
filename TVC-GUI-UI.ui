@@ -395,9 +395,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempALabel">
+        <widget class="QCheckBox" name="tempAEnable">
          <property name="text">
           <string>Temp Sensor A</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -434,14 +437,20 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempELabel">
+        <widget class="QCheckBox" name="tempEEnable">
          <property name="text">
           <string>Temp Sensor E</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="tempEValue">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string>No Data</string>
          </property>
@@ -473,9 +482,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempBLabel">
+        <widget class="QCheckBox" name="tempBEnable">
          <property name="text">
           <string>Temp Sensor B</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -512,9 +524,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempFLabel">
+        <widget class="QCheckBox" name="tempFEnable">
          <property name="text">
           <string>Temp Sensor F</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -551,9 +566,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempCLabel">
+        <widget class="QCheckBox" name="tempCEnable">
          <property name="text">
           <string>Temp Sensor C</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -590,9 +608,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempDLabel">
+        <widget class="QCheckBox" name="tempDEnable">
          <property name="text">
           <string>Temp Sensor D</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -633,9 +654,12 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_11">
        <item>
-        <widget class="QLabel" name="chillerTempLabel">
+        <widget class="QCheckBox" name="chillerTempEnable">
          <property name="text">
           <string>Chiller Temperature</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -700,9 +724,19 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="tempGLabel">
+        <widget class="QCheckBox" name="tempGEnable">
          <property name="text">
           <string>Temp Sensor G</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="tempGLabel">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -742,9 +776,12 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QLabel" name="ionLabel">
+        <widget class="QCheckBox" name="ionEnable">
          <property name="text">
           <string>Ionization Pressure</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

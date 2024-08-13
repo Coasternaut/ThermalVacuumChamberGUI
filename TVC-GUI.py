@@ -45,16 +45,16 @@ class mainApp(QMainWindow):
 
         self.startTime = None
         
-        self.dataChannels = {'tempA': dataChannel('tempArd', 'tempA', 'Temp Sensor A', 'temp', self.tempAPlot, self.tempALabel, self.tempAValue, self.tempARename),
-                            'tempB': dataChannel('tempArd', 'tempB', 'Temp Sensor B', 'temp', self.tempBPlot, self.tempBLabel, self.tempBValue, self.tempBRename),
-                            'tempC': dataChannel('tempArd', 'tempC', 'Temp Sensor C', 'temp', self.tempCPlot, self.tempCLabel, self.tempCValue, self.tempCRename),
-                            'tempD': dataChannel('tempArd', 'tempD', 'Temp Sensor D', 'temp', self.tempDPlot, self.tempDLabel, self.tempDValue, self.tempDRename),
-                            'tempE': dataChannel('tempArd', 'tempE', 'Temp Sensor E', 'temp', self.tempEPlot, self.tempELabel, self.tempEValue, self.tempERename),
-                            'tempF': dataChannel('tempArd', 'tempF', 'Temp Sensor F', 'temp', self.tempFPlot, self.tempFLabel, self.tempFValue, self.tempFRename),
-                            'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGLabel, self.tempGValue, self.tempGRename),
-                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'temp', self.chillerTempPlot, self.chillerActualTempLabel, self.chillerActualTempValue),
-                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'temp', self.chillerTempPlot, self.chillerSetpointTempLabel, self.chillerSetpointTempValue, None, False, 'g'),
-                            'ion_pressure': dataChannel('pressure', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionLabel, self.ionValue)
+        self.dataChannels = {'tempA': dataChannel('tempArd', 'tempA', 'Temp Sensor A', 'temp', self.tempAPlot, self.tempAEnable, self.tempAValue, self.tempARename),
+                            'tempB': dataChannel('tempArd', 'tempB', 'Temp Sensor B', 'temp', self.tempBPlot, self.tempBEnable, self.tempBValue, self.tempBRename),
+                            'tempC': dataChannel('tempArd', 'tempC', 'Temp Sensor C', 'temp', self.tempCPlot, self.tempCEnable, self.tempCValue, self.tempCRename),
+                            'tempD': dataChannel('tempArd', 'tempD', 'Temp Sensor D', 'temp', self.tempDPlot, self.tempDEnable, self.tempDValue, self.tempDRename),
+                            'tempE': dataChannel('tempArd', 'tempE', 'Temp Sensor E', 'temp', self.tempEPlot, self.tempEEnable, self.tempEValue, self.tempERename),
+                            'tempF': dataChannel('tempArd', 'tempF', 'Temp Sensor F', 'temp', self.tempFPlot, self.tempFEnable, self.tempFValue, self.tempFRename),
+                            'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGEnable, self.tempGValue, self.tempGRename),
+                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerActualTempValue),
+                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerSetpointTempValue, None, False, 'g'),
+                            'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue)
                             }
         
         # current display units for each dataCategory. Values set in updateYAxisUnits()
@@ -85,6 +85,7 @@ class mainApp(QMainWindow):
     def liveUpdateLoop(self):
         loopStartTime = time.time()
 
+        self.updateEnableStatus()
         self.getNewData()
         self.updateValueDisplays()
         self.updatePlots()
@@ -93,48 +94,57 @@ class mainApp(QMainWindow):
 
     def getNewData(self):
         self.currentTimestamp = time.time()
-        # gets temp data
-        tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 36)
-        
-        # if temp data exists
-        if tempData:
-            # converts data string into list of floatsMin Length: {minByteLength}   Actual Length: {dataLen}'
-            tempValuesStr = tempData.split(';')
-            tempValuesStr.pop()
+
+        if self.serialDevices['tempArd'].enabled:
+            # gets temp data
+            tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 36)
             
-            for i, channel in zip(range(len(tempValuesStr)), self.dataChannels.values()):
-                channel.currentValue = validateTemp(safeFloat(tempValuesStr[i]))
-        else:
-            for channel in list(self.dataChannels.values())[:7]:
-                channel.currentValue = None
+            # if temp data exists
+            if tempData:
+                # converts data string into list of floatsMin Length: {minByteLength}   Actual Length: {dataLen}'
+                tempValuesStr = tempData.split(';')
+                tempValuesStr.pop()
+                
+                for i, channel in zip(range(len(tempValuesStr)), self.dataChannels.values()):
+                    if channel.enabled:
+                        # saves temp data
+                        channel.currentValue = validateTemp(safeFloat(tempValuesStr[i]))
+                    else:
+                        # does not record disabled channel
+                        channel.currentValue = None
+            else:
+                for channel in list(self.dataChannels.values())[:7]:
+                    channel.currentValue = None
 
         self.tempTime.setText(str(round((time.time() - self.currentTimestamp), 3)))
         clock = time.time()
         
-        # get bath temp
-        self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 4))
-        
-        # only gets setpoint if bath temp was valid
-        if self.dataChannels['bath_temp'].currentValue != None:
-            # get temperature setpoint
-            self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 4))
-        else:
-            self.dataChannels['temp_setpoint'].currentValue = None
+        if self.serialDevices['chiller'].enabled:
+            # get bath temp
+            self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 4))
+            
+            # only gets setpoint if bath temp was valid
+            if self.dataChannels['bath_temp'].currentValue != None:
+                # get temperature setpoint
+                self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 4))
+            else:
+                self.dataChannels['temp_setpoint'].currentValue = None
 
         self.chillerTime.setText(str(round((time.time() - clock), 3)))
         clock = time.time()
         
+        if self.serialDevices['ionGauge'].enabled:
         # get ionization gauge pressure
-        ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13)
-        if ionData and ionData[:3] == '*01': # ensures valid return header
-            if ionData[4:] != '9.99E+09': # checks for default return when gauge off
-                ionData = safeFloat(ionData[4:]) # splits data from return header
-            else:
+            ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13)
+            if ionData and ionData[:3] == '*01': # ensures valid return header
+                if ionData[4:] != '9.99E+09': # checks for default return when gauge off
+                    ionData = safeFloat(ionData[4:]) # splits data from return header
+                else:
+                    ionData = None
+            else: 
                 ionData = None
-        else: 
-            ionData = None
-            
-        self.dataChannels['ion_pressure'].currentValue = ionData
+                
+            self.dataChannels['ion_pressure'].currentValue = ionData
 
         self.ionTime.setText(str(round((time.time() - clock), 3)))
 
@@ -149,14 +159,13 @@ class mainApp(QMainWindow):
     
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
-            value = self.convertUnit(channel.currentValue, channel.dataCategory)
-            if value:
-                channel.currentValueDisplay.setText(f'{value} {self.currentUnits[channel.dataCategory]}')
-                channel.currentValueDisplay.setStyleSheet('color: black; font-size: 16px')
-            else:
-                channel.currentValueDisplay.setText('No Data')
-                channel.currentValueDisplay.setStyleSheet('color: red; font-size: 16px')
-                
+            if channel.enabled:
+                value = self.convertUnit(channel.currentValue, channel.dataCategory)
+                if value:
+                    self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
+                else:
+                    self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
+    
     def updatePlots(self):
         clock = time.time()
 
@@ -186,41 +195,42 @@ class mainApp(QMainWindow):
         cur = db.cursor()
         #plots data
         for channel in self.dataChannels.values():
-            cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
-                            WHERE timestamp BETWEEN ? AND ?""",
-                            (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
-            data = cur.fetchall()
+            if channel.enabled:
+                cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
+                                WHERE timestamp BETWEEN ? AND ?""",
+                                (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
+                data = cur.fetchall()
 
-            #print(f'Reading from {channel.dbName} - Length Data: {len(data)}')
+                #print(f'Reading from {channel.dbName} - Length Data: {len(data)}')
 
-            xAxis = []
-            yAxis = []
+                xAxis = []
+                yAxis = []
 
-            for d in data:
-                xAxis.append(d[0])
-                yValue = self.convertUnit(d[1], channel.dataCategory)
-                if yValue:
-                    yAxis.append(yValue)
-                else:
-                    #print('Invalid data for graphing: ', d[1])
-                    yAxis.append(np.nan)
+                for d in data:
+                    xAxis.append(d[0])
+                    yValue = self.convertUnit(d[1], channel.dataCategory)
+                    if yValue:
+                        yAxis.append(yValue)
+                    else:
+                        #print('Invalid data for graphing: ', d[1])
+                        yAxis.append(np.nan)
 
-            if channel.singlePlot:
-                channel.plot.clear()
-                channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
+                if channel.singlePlot:
+                    channel.plot.clear()
+                    channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
 
-            if channel.device != 'chiller' and yAxis:
-                yMin = min(yAxis)
-                yMax = max(yAxis)
+                if channel.device != 'chiller' and yAxis:
+                    yMin = min(yAxis)
+                    yMax = max(yAxis)
 
-                yRangeMin = min(yMin * 0.95, yMin - self.minYBorder)
-                yRangeMax = max(yMax * 1.05, yMax + self.minYBorder)
+                    yRangeMin = min(yMin * 0.95, yMin - self.minYBorder)
+                    yRangeMax = max(yMax * 1.05, yMax + self.minYBorder)
 
-                if not (np.isnan(yRangeMin) or np.isnan(yRangeMax)):
-                    #print(f'Updating Y range - Channel: {channel.dbName} Min: {yRangeMin}, Max: {yRangeMax}')
-                    channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
+                    if not (np.isnan(yRangeMin) or np.isnan(yRangeMax)):
+                        #print(f'Updating Y range - Channel: {channel.dbName} Min: {yRangeMin}, Max: {yRangeMax}')
+                        channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
 
-            channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
+                channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
         self.plottingTime.setText(str(round((time.time() - clock), 3)))
             
             
@@ -293,7 +303,7 @@ class mainApp(QMainWindow):
                 db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
                 db.commit()
                 
-                channel.labelDisplay.setText(channel.label)
+                channel.enableDisplay.setText(channel.label)
                 channel.renameLabel.clear()
                 channel.renameLabel.setPlaceholderText(channel.label)
         
@@ -316,7 +326,7 @@ class mainApp(QMainWindow):
                         if readLabel:
                             channel.label = readLabel
 
-                            channel.labelDisplay.setText(channel.label)
+                            channel.enableDisplay.setText(channel.label)
                             channel.renameLabel.setPlaceholderText(channel.label)
                 
     def updateTimeRangeMode(self):
@@ -458,6 +468,26 @@ class mainApp(QMainWindow):
             print('Chiller off')
             # if requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1) == 0:
 
+    def updateEnableStatus(self):
+        # disables all devices to start
+        for device in self.serialDevices.values():
+            device.enabled = False
+        
+        for channel in self.dataChannels.values():
+            if channel.enableDisplay.isChecked():
+                channel.enabled = True
+                self.serialDevices[channel.device].enabled = True # re-enables device
+            else:
+                channel.enabled = False
+                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
+            # print(f"Label Status for {channel.dbName}: {channel.currentValueDisplay.isEnabled()}")
+
+
+    # sets the text of a label with a given color, black as default
+    def setLabelTextColor(self, labelObject, text, color='black'):
+        labelObject.setText(text)
+        labelObject.setStyleSheet(f'color: {color}; font-size: 16px')
+
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
     dt = QDateTime(0,0,0,0,0) # placeholder
@@ -472,18 +502,20 @@ class dataChannel:
     label: str
     dataCategory: str
     plot: any
-    labelDisplay: any
+    enableDisplay: any
     currentValueDisplay: any
     renameLabel: any = None 
     singlePlot: bool = True
     color: str = 'r'
     currentValue: float = None
+    enabled: bool = False
     
 @dataclass
 class serialDevice:
     name: str
     serialNumber: str
     connectionObject: serial.Serial
+    enabled: bool = False
     
 def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
     global db
