@@ -56,7 +56,9 @@ class mainApp(QMainWindow):
                             'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGEnable, self.tempGValue, self.tempGRename),
                             'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerActualTempValue),
                             'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerSetpointTempValue, None, False, 'g'),
-                            'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue)
+                            'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue),
+                            'CG1': dataChannel('ionGauge', 'CG1', 'Scroll Pump Pressure (CG1)', 'pres', self.CG1Plot, self.CG1Enable, self.CG1Value),
+                            'CG2': dataChannel('ionGauge', 'CG2', 'Chamber Pressure (CG2)', 'pres', self.CG2Plot, self.CG2Enable, self.CG2Value)
                             }
         
         # current display units for each dataCategory. Values set in updateYAxisUnits()
@@ -136,23 +138,28 @@ class mainApp(QMainWindow):
         clock = time.time()
         
         if self.serialDevices['ionGauge'].enabled:
-        # get ionization gauge pressure
-            ionData = requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13)
-            if ionData and ionData[:3] == '*01': # ensures valid return header
-                if ionData[4:] != '9.99E+09': # checks for default return when gauge off
-                    ionData = safeFloat(ionData[4:]) # splits data from return header
-                else:
-                    ionData = None
-            else: 
-                ionData = None
-                
-            self.dataChannels['ion_pressure'].currentValue = ionData
+            # gets pressures from ion gauges
+            if self.dataChannels['ion_pressure'].enabled:
+                self.dataChannels['ion_pressure'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13))
+            else:
+                self.dataChannels['ion_pressure'].currentValue = None
+
+            if self.dataChannels['CG1'].enabled:
+                self.dataChannels['CG1'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RDCG1\r', 13))
+            else:
+                self.dataChannels['CG1'].currentValue = None
+            
+            if self.dataChannels['CG2'].enabled:
+                self.dataChannels['CG2'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
+            else:
+                self.dataChannels['CG2'].currentValue = None
+            
 
         self.ionTime.setText(str(round((time.time() - clock), 3)))
 
         clock = time.time()
-        self.db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        self.db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure, CG1, CG2)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         self.currentValueTuple())
 
         self.db.commit()
@@ -162,12 +169,17 @@ class mainApp(QMainWindow):
     def updateValueDisplays(self):
         for channel in self.dataChannels.values():
             if channel.enabled:
-                value = self.convertUnit(channel.currentValue, channel.dataCategory)
-                if validNumber(value):
-                    self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
+                if channel.currentValue == 'Off':
+                    self.setLabelTextColor(self.dataChannels['ion_pressure'].currentValueDisplay, 'Gauge off', 'orange')
                 else:
-                    self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
-    
+                    value = self.convertUnit(channel.currentValue, channel.dataCategory)
+                    if validNumber(value):
+                        self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
+                    else:
+                        self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
+            else:
+                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
+
     def updatePlots(self):
         clock = time.time()
 
@@ -221,6 +233,7 @@ class mainApp(QMainWindow):
                     channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
 
                 if channel.device != 'chiller' and yAxis:
+                    #print(f'Channel: {channel.dbName}  Data: {yAxis}')
                     yMin = min(yAxis)
                     yMax = max(yAxis)
 
@@ -248,7 +261,7 @@ class mainApp(QMainWindow):
         
         self.openDB() # creates new database file
         
-        self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)")
+        self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure, CG1, CG2)")
         
         # sets beginning of time range if 
         if not self.startTime:
@@ -433,11 +446,11 @@ class mainApp(QMainWindow):
             if dataCategory == 'pres':
                 if self.currentUnits['pres'] == 'Torr':
                     return value
-                if self.currentUnits['temp'] == 'Pa':
-                    return round(value * 133.322, 2)
-                if self.currentUnits['temp'] == 'inHg':
+                if self.currentUnits['pres'] == 'Pa':
+                    return int(value * 133.322)
+                if self.currentUnits['pres'] == 'inHg':
                     return round(value / 25.4, 2)
-                if self.currentUnits['temp'] == 'Atm':
+                if self.currentUnits['pres'] == 'Atm':
                     return round(value / 760.0, 2)
         return None
     
@@ -477,7 +490,6 @@ class mainApp(QMainWindow):
                 self.serialDevices[channel.device].enabled = True # re-enables device
             else:
                 channel.enabled = False
-                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
             # print(f"Label Status for {channel.dbName}: {channel.currentValueDisplay.isEnabled()}")
 
 
@@ -493,6 +505,15 @@ class mainApp(QMainWindow):
             self.db.close()
             
         self.db = sqlite3.connect(filepath)
+
+    def validateIonPressure(self, input):
+        if input and input[:3] == '*01': # ensures valid return header
+            if input[4:] == '9.99E+09': # checks for default return when gauge off
+                return 'Off'
+            else:
+                return safeFloat(input[4:]) # splits data from return header
+        else: 
+            return None
 
     # cleanly closes the application
     def closeEvent(self, event):
@@ -619,7 +640,7 @@ def requestSerialData(serialDevice, requestString, minByteLength):
         #print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
         return None
     except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
-        print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
+        # print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
         try:
             resetConnection(serialDevice)
             return None
