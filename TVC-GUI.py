@@ -495,6 +495,36 @@ class mainApp(QMainWindow):
             
         self.db = sqlite3.connect(filepath)
 
+    # cleanly closes the application
+    def closeEvent(self, event):
+        print('Closing app')
+
+        # stops updating app
+        self.liveUpdateLoopTimer.stop()
+
+        # closes db
+        if self.db:
+            self.db.commit()
+            self.db.close()
+
+        # continues closing GUI
+        event.accept()
+        
+        # closes all serial devices
+        for device in self.serialDevices.values():
+            # print(f'Canceling write {device.name}')
+            device.connectionObject.cancel_write()
+            # print(f'Canceling read {device.name}')
+            device.connectionObject.cancel_read()
+            # print(f'Resetting buffers {device.name}')
+            device.connectionObject.reset_input_buffer()
+            device.connectionObject.reset_output_buffer()
+            print(f'Closing {device.name}')
+            device.connectionObject.close()
+            #print(f'Closed {device.name}')
+        
+
+        
             
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
