@@ -163,7 +163,7 @@ class mainApp(QMainWindow):
         for channel in self.dataChannels.values():
             if channel.enabled:
                 value = self.convertUnit(channel.currentValue, channel.dataCategory)
-                if value:
+                if validNumber(value):
                     self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
                 else:
                     self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
@@ -210,9 +210,8 @@ class mainApp(QMainWindow):
 
                 for d in data:
                     xAxis.append(d[0])
-                    yValue = self.convertUnit(d[1], channel.dataCategory)
-                    if yValue:
-                        yAxis.append(yValue)
+                    if validNumber(d[1]):
+                        yAxis.append(self.convertUnit(d[1], channel.dataCategory))
                     else:
                         #print('Invalid data for graphing: ', d[1])
                         yAxis.append(np.nan)
