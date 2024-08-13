@@ -44,6 +44,8 @@ class mainApp(QMainWindow):
         self.currentMode = 'live'
 
         self.startTime = None
+
+        self.db = None
         
         self.dataChannels = {'tempA': dataChannel('tempArd', 'tempA', 'Temp Sensor A', 'temp', self.tempAPlot, self.tempAEnable, self.tempAValue, self.tempARename),
                             'tempB': dataChannel('tempArd', 'tempB', 'Temp Sensor B', 'temp', self.tempBPlot, self.tempBEnable, self.tempBValue, self.tempBRename),
@@ -149,11 +151,11 @@ class mainApp(QMainWindow):
         self.ionTime.setText(str(round((time.time() - clock), 3)))
 
         clock = time.time()
-        db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)
+        self.db.execute("""INSERT INTO data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         self.currentValueTuple())
 
-        db.commit()
+        self.db.commit()
 
         self.dbTime.setText(str(round((time.time() - clock), 3)))
     
@@ -192,7 +194,7 @@ class mainApp(QMainWindow):
             raise ValueError('No time range specified')
         
 
-        cur = db.cursor()
+        cur = self.db.cursor()
         #plots data
         for channel in self.dataChannels.values():
             if channel.enabled:
@@ -236,7 +238,7 @@ class mainApp(QMainWindow):
             
     # sets the time begin and end boxes based on the first and last entry in the database
     def readDateRange(self):
-        cur = db.cursor()
+        cur = self.db.cursor()
         cur.execute("SELECT MIN(timestamp), MAX(timestamp) FROM data_log")
         data = cur.fetchall()
         self.dateTimeEditBegin.setDateTime(QDateTimeFromTimestamp(data[0][0]))
@@ -244,11 +246,10 @@ class mainApp(QMainWindow):
 
     # starts logging and graphing data
     def startLogging(self):
-        global db
         
-        openDB() # creates new database file
+        self.openDB() # creates new database file
         
-        db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)")
+        self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure)")
         
         # sets beginning of time range if 
         if not self.startTime:
@@ -271,7 +272,7 @@ class mainApp(QMainWindow):
         self.setMode('replay')
         
         openFilePath = QFileDialog.getOpenFileName(self, "Open Database file", '', '*.db')
-        openDB(openFilePath[0])
+        self.openDB(openFilePath[0])
         
         # reads labels and date range from database
         self.readDBLabels()
@@ -289,28 +290,26 @@ class mainApp(QMainWindow):
         self.stopButton.setEnabled(False)
     
     def saveLabels(self):
-        global db
         
-        if (not isDBOpen()):
-            openDB()
+        if not self.db:
+            self.openDB()
             
-        db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
+        self.db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
         for channel in self.dataChannels.values():
             if channel.renameLabel:
                 if channel.renameLabel.text():
                     channel.label = channel.renameLabel.text()
-                db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
-                db.commit()
+                self.db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
+                self.db.commit()
                 
                 channel.enableDisplay.setText(channel.label)
                 channel.renameLabel.clear()
                 channel.renameLabel.setPlaceholderText(channel.label)
         
     def readDBLabels(self):
-        global db
         
-        cur = db.cursor()
+        cur = self.db.cursor()
         cur.row_factory = lambda cursor, row: row[0]
         
         for channel in self.dataChannels.values():
@@ -383,7 +382,7 @@ class mainApp(QMainWindow):
             savePath += '.csv'
 
         # print('Final save path: ', savePath)
-        df = pd.read_sql_query("SELECT * FROM data_log", db)
+        df = pd.read_sql_query("SELECT * FROM data_log", self.db)
         
         labels = [channel.label for channel in self.dataChannels.values()]
         
@@ -488,6 +487,15 @@ class mainApp(QMainWindow):
         labelObject.setText(text)
         labelObject.setStyleSheet(f'color: {color}; font-size: 16px')
 
+    def openDB(self, filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
+        
+        # closes database if one currently is open
+        if self.db:
+            self.db.close()
+            
+        self.db = sqlite3.connect(filepath)
+
+            
 # Converts a epoch timestamp (float) to a QDateTime object
 def QDateTimeFromTimestamp(timestamp):
     dt = QDateTime(0,0,0,0,0) # placeholder
@@ -516,26 +524,7 @@ class serialDevice:
     serialNumber: str
     connectionObject: serial.Serial
     enabled: bool = False
-    
-def openDB(filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
-    global db
-    
-    # closes database if one currently is open
-    if (isDBOpen()):
-        db.close()
-        
-    db = sqlite3.connect(filepath, check_same_thread=False)
-    
-# returns true if a database file is open, false otherwise
-def isDBOpen():
-    global db
-    try:
-        if (db):
-            return True
-        else:
-            return False
-    except NameError:
-        return False
+
     
 def getDevicePath(serialNumber):
     for port in serial.tools.list_ports.comports():
