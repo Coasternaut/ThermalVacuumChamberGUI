@@ -75,7 +75,7 @@
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>490</x>
       <y>740</y>
       <width>371</width>
       <height>231</height>
@@ -235,7 +235,7 @@
      <item>
       <widget class="QPushButton" name="renameButton">
        <property name="text">
-        <string>Rename</string>
+        <string>Apply</string>
        </property>
       </widget>
      </item>
@@ -1004,7 +1004,7 @@
      <rect>
       <x>1160</x>
       <y>790</y>
-      <width>287</width>
+      <width>289</width>
       <height>179</height>
      </rect>
     </property>
@@ -1017,7 +1017,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Display time:</string>
+        <string>Display Time:</string>
        </property>
       </widget>
      </item>
@@ -1043,7 +1043,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="hoursLabel">
        <property name="text">
-        <string>Last # hours:</string>
+        <string>Last # Hours:</string>
        </property>
       </widget>
      </item>

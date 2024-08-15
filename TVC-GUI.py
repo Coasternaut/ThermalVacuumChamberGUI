@@ -170,7 +170,7 @@ class mainApp(QMainWindow):
         for channel in self.dataChannels.values():
             if channel.enabled:
                 if channel.currentValue == 'Off':
-                    self.setLabelTextColor(self.dataChannels['ion_pressure'].currentValueDisplay, 'Gauge off', 'orange')
+                    self.setLabelTextColor(self.dataChannels['ion_pressure'].currentValueDisplay, 'Gauge Off', 'orange')
                 else:
                     value = self.convertUnit(channel.currentValue, channel.dataCategory)
                     if validNumber(value):
