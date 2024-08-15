@@ -220,8 +220,15 @@ class mainApp(QMainWindow):
                 xAxis = []
                 yAxis = []
 
+                lastInputTimestamp = data[0][0]
+
                 for d in data:
-                    xAxis.append(d[0])
+                    # checks for gap in data and adds NaN point to split plots
+                    if d[0] - lastInputTimestamp > 3:
+                        xAxis.append(lastInputTimestamp + 1)
+                        yAxis.append(np.nan)
+                    lastInputTimestamp = d[0]
+                    xAxis.append(lastInputTimestamp)
                     if validNumber(d[1]):
                         yAxis.append(self.convertUnit(d[1], channel.dataCategory))
                     else:
