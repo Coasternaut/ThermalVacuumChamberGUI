@@ -64,6 +64,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="importCSVbutton">
+       <property name="text">
+        <string>Import from CSV</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="openDBbutton">
        <property name="text">
         <string>Open DB file</string>

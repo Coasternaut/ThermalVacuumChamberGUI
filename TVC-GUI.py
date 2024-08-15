@@ -28,6 +28,7 @@ class mainApp(QMainWindow):
         self.renameButton.pressed.connect(self.saveLabels)
         
         self.exportCSVbutton.pressed.connect(self.exportData)
+        self.importCSVbutton.pressed.connect(self.importData)
         self.openDBbutton.pressed.connect(self.openDatabaseFile)
 
         self.chillerSetButton.pressed.connect(self.setChillerSetpoint)
@@ -54,8 +55,8 @@ class mainApp(QMainWindow):
                             'tempE': dataChannel('tempArd', 'tempE', 'Temp Sensor E', 'temp', self.tempEPlot, self.tempEEnable, self.tempEValue, self.tempERename),
                             'tempF': dataChannel('tempArd', 'tempF', 'Temp Sensor F', 'temp', self.tempFPlot, self.tempFEnable, self.tempFValue, self.tempFRename),
                             'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGEnable, self.tempGValue, self.tempGRename),
-                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Actual:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerActualTempValue),
-                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Setpoint:', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerSetpointTempValue, None, False, 'g'),
+                            'bath_temp': dataChannel('chiller', 'bath_temp', 'Chiller Temp', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerActualTempValue),
+                            'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Chiller Setpoint', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerSetpointTempValue, None, False, 'g'),
                             'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue),
                             'CG1': dataChannel('ionGauge', 'CG1', 'Scroll Pump Pressure (CG1)', 'pres', self.CG1Plot, self.CG1Enable, self.CG1Value),
                             'CG2': dataChannel('ionGauge', 'CG2', 'Chamber Pressure (CG2)', 'pres', self.CG2Plot, self.CG2Enable, self.CG2Value)
@@ -215,7 +216,7 @@ class mainApp(QMainWindow):
                                 (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
                 data = cur.fetchall()
 
-                #print(f'Reading from {channel.dbName} - Length Data: {len(data)}')
+                # print(f'Reading from {channel.dbName} - Data: {data}')
 
                 xAxis = []
                 yAxis = []
@@ -300,11 +301,9 @@ class mainApp(QMainWindow):
         # displays full range
         self.displayTimeBox.setCurrentIndex(1)
         
-        # updates UI with new data
+        # updates UI with new data. Also calls updatePlots
         self.updateTimeRangeMode()
         
-        self.updatePlots()
-
         self.startButton.setEnabled(False)
         self.stopButton.setEnabled(False)
     
@@ -403,13 +402,40 @@ class mainApp(QMainWindow):
         # print('Final save path: ', savePath)
         df = pd.read_sql_query("SELECT * FROM data_log", self.db)
         
-        labels = [channel.label for channel in self.dataChannels.values()]
-        
-        # sets temp sensor columns to given label
-        for i in range(1, 8):
-            df.rename(columns={df.columns[i]: labels[i - 1]}, inplace=True)
+        # sets column headers to the label text
+        for channel, column in zip(self.dataChannels.values(), df.columns[1:]):
+            # print(f"Renaming channel {channel.dbName} column {column}")
+            df.rename(columns={column: channel.label}, inplace=True)
                 
-        df.to_csv(savePath)
+        df.to_csv(savePath, index=False)
+ 
+    def importData(self):
+        self.setMode('replay')
+
+        openPath = QFileDialog.getOpenFileName(self, "Open CSV file", '', '*.csv')[0]
+
+        df = pd.read_csv(openPath)
+
+        self.openDB(f'logs/csvImport{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db')
+
+        for channel, column in zip(self.dataChannels.values(), df.columns[1:]):
+            # Applies custom label to temp sensors
+            if channel.device == 'tempArd':
+                channel.label = column
+                channel.enableDisplay.setText(channel.label)
+                channel.renameLabel.clear()
+                channel.renameLabel.setPlaceholderText(channel.label)
+            
+            # sets column name back to the DB name
+            df.rename(columns={column: channel.dbName}, inplace=True)
+
+        df.to_sql('data_log', self.db, index=False)
+        self.db.commit()
+
+        # displays full range
+        self.displayTimeBox.setCurrentIndex(1)
+        self.updateTimeRangeMode() # also calls updatePlots
+
 
     # adjusts UI elements based on new mode
     def setMode(self, newMode: str):
@@ -573,7 +599,7 @@ class dataChannel:
     singlePlot: bool = True
     color: str = 'r'
     currentValue: float = None
-    enabled: bool = False
+    enabled: bool = True
     
 @dataclass
 class serialDevice:
