@@ -106,7 +106,7 @@ class mainApp(QMainWindow):
 
         if self.serialDevices['tempArd'].enabled:
             # gets temp data
-            tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 36)
+            tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 29)
             
             # if temp data exists
             if tempData:
