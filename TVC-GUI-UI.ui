@@ -1141,6 +1141,51 @@
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="ionOffButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1360</x>
+      <y>126</y>
+      <width>121</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ion Gauge Off</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ionOnButton">
+    <property name="geometry">
+     <rect>
+      <x>1360</x>
+      <y>90</y>
+      <width>121</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ion Gauge On</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ionStatusButton">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1360</x>
+      <y>170</y>
+      <width>121</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Get Status</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">

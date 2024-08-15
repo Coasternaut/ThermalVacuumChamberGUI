@@ -34,6 +34,10 @@ class mainApp(QMainWindow):
         self.chillerSetButton.pressed.connect(self.setChillerSetpoint)
         self.startChillerButton.pressed.connect(self.startChiller)
         self.stopChillerButton.pressed.connect(self.stopChiller)
+
+        self.ionOnButton.pressed.connect(self.ionOn)
+        self.ionOffButton.pressed.connect(self.ionOff)
+        self.ionStatusButton.pressed.connect(self.ionStatus)
         
         # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
@@ -511,6 +515,24 @@ class mainApp(QMainWindow):
             self.stopChillerButton.setEnabled(False)
             print('Chiller off')
             # if requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1) == 0:
+
+    def ionOn(self):
+        response = requestSerialData(self.serialDevices['ionGauge'], '#01IG1\r', 1)
+        print(f"Ion Gauge Response: {response}")
+        if response:
+            self.ionOnButton.setEnabled(False)
+            self.ionOffButton.setEnabled(True)
+
+    def ionOff(self):
+        response = requestSerialData(self.serialDevices['ionGauge'], '#01IG0\r', 1)
+        print(f"Ion Gauge Response: {response}")
+        if response:
+            self.ionOnButton.setEnabled(True)
+            self.ionOffButton.setEnabled(False)
+
+    def ionStatus(self):
+        print('Ion On/Off: ', requestSerialData(self.serialDevices['ionGauge'], '#01IGS\r', 1))
+        print('Status: ', requestSerialData(self.serialDevices['ionGauge'], '#01RS\r', 1))
 
     def updateEnableStatus(self):
         # disables all devices to start
