@@ -30,6 +30,7 @@ class mainApp(QMainWindow):
         self.exportCSVbutton.pressed.connect(self.exportData)
         self.importCSVbutton.pressed.connect(self.importData)
         self.openDBbutton.pressed.connect(self.openDatabaseFile)
+        self.closeDBbutton.pressed.connect(self.closeDatabaseFile)
 
         self.chillerSetButton.pressed.connect(self.setChillerSetpoint)
         self.startChillerButton.pressed.connect(self.startChiller)
@@ -46,7 +47,7 @@ class mainApp(QMainWindow):
         self.liveUpdateLoopTimer.setInterval(1000)
         self.liveUpdateLoopTimer.timeout.connect(self.liveUpdateLoop)
         
-        self.currentMode = 'live'
+        self.setMode('startup')
 
         self.startTime = None
 
@@ -272,7 +273,8 @@ class mainApp(QMainWindow):
     # starts logging and graphing data
     def startLogging(self):
         
-        self.openDB() # creates new database file
+        if not self.db:
+            self.openDB(f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db') # creates new database file
         
         self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure, CG1, CG2)")
         
@@ -283,14 +285,12 @@ class mainApp(QMainWindow):
         
         # starts threads to gather data and timer to refresh UI
         self.liveUpdateLoopTimer.start()
-        self.startButton.setEnabled(False)
-        self.stopButton.setEnabled(True)
+        self.setMode('logging')
 
     # stops logging data
     def stopLogging(self):
         self.liveUpdateLoopTimer.stop()
-        self.startButton.setEnabled(True)
-        self.stopButton.setEnabled(False)
+        self.setMode('stopped')
         
     # imports stored data from a database file
     def openDatabaseFile(self): 
@@ -308,14 +308,25 @@ class mainApp(QMainWindow):
         
         # updates UI with new data. Also calls updatePlots
         self.updateTimeRangeMode()
-        
-        self.startButton.setEnabled(False)
-        self.stopButton.setEnabled(False)
+
+    def closeDatabaseFile(self): 
+        self.setMode('startup')
+
+        self.liveUpdateLoopTimer.stop()
+
+        self.db.close()
+        self.db = None
+
+        # resets plots
+        for channel in self.dataChannels.values():
+            self.setLabelTextColor(channel.currentValueDisplay, '---------')
+            channel.plot.clear()
+
     
     def saveLabels(self):
         
         if not self.db:
-            self.openDB()
+            self.openDB(f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db')
             
         self.db.execute("CREATE TABLE IF NOT EXISTS labels(channel PRIMARY KEY, label)")
         
@@ -445,17 +456,42 @@ class mainApp(QMainWindow):
         self.updateTimeRangeMode() # also calls updatePlots
 
 
-    # adjusts UI elements based on new mode
+    # adjusts button enabled/disabled based on new mode
     def setMode(self, newMode: str):
         self.currentMode = newMode
+        if newMode == 'startup':
+            self.startButton.setEnabled(True)
+            self.stopButton.setEnabled(False)
+            self.renameButton.setEnabled(True)
+            self.exportCSVbutton.setEnabled(False)
+            self.importCSVbutton.setEnabled(True)
+            self.openDBbutton.setEnabled(True)
+            self.closeDBbutton.setEnabled(False)
+        if newMode == 'logging':
+            self.startButton.setEnabled(False)
+            self.stopButton.setEnabled(True)
+            self.renameButton.setEnabled(True)
+            self.exportCSVbutton.setEnabled(True)
+            self.importCSVbutton.setEnabled(False)
+            self.openDBbutton.setEnabled(False)
+            self.closeDBbutton.setEnabled(False)
+        if newMode == 'stopped':
+            self.startButton.setEnabled(True)
+            self.stopButton.setEnabled(False)
+            self.renameButton.setEnabled(True)
+            self.exportCSVbutton.setEnabled(True)
+            self.importCSVbutton.setEnabled(True)
+            self.openDBbutton.setEnabled(True)
+            self.closeDBbutton.setEnabled(True)
         if newMode == 'replay':
             self.startButton.setEnabled(False)
             self.stopButton.setEnabled(False)
             self.renameButton.setEnabled(False)
-        if newMode == 'live':
-            self.startButton.setEnabled(True)
-            self.stopButton.setEnabled(True)
-            self.renameButton.setEnabled(True)
+            self.exportCSVbutton.setEnabled(True)
+            self.importCSVbutton.setEnabled(True)
+            self.openDBbutton.setEnabled(True)
+            self.closeDBbutton.setEnabled(True)
+
 
     # returns the timestamp and all current values as a tuple
     def currentValueTuple(self):
@@ -557,8 +593,7 @@ class mainApp(QMainWindow):
         labelObject.setText(text)
         labelObject.setStyleSheet(f'color: {color}; font-size: 16px')
 
-    def openDB(self, filepath=f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db'):
-        
+    def openDB(self, filepath):
         # closes database if one currently is open
         if self.db:
             self.db.close()

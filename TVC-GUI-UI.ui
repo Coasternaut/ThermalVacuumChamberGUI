@@ -22,7 +22,7 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>865</x>
       <y>740</y>
       <width>211</width>
       <height>111</height>
@@ -204,7 +204,7 @@
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>460</x>
       <y>740</y>
       <width>391</width>
       <height>221</height>
@@ -397,7 +397,7 @@
    <widget class="QFrame" name="frame_4">
     <property name="geometry">
      <rect>
-      <x>1110</x>
+      <x>1090</x>
       <y>740</y>
       <width>311</width>
       <height>221</height>
@@ -745,7 +745,7 @@
       <x>1580</x>
       <y>360</y>
       <width>191</width>
-      <height>211</height>
+      <height>246</height>
      </rect>
     </property>
     <property name="font">
@@ -768,7 +768,7 @@
        <x>10</x>
        <y>0</y>
        <width>171</width>
-       <height>204</height>
+       <height>240</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -817,22 +817,35 @@
       </item>
       <item>
        <widget class="QPushButton" name="exportCSVbutton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>Export to CSV</string>
+         <string>Export To CSV</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="importCSVbutton">
         <property name="text">
-         <string>Import from CSV</string>
+         <string>Import From CSV</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="openDBbutton">
         <property name="text">
-         <string>Open DB file</string>
+         <string>Open DB File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="closeDBbutton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Close Current DB</string>
         </property>
        </widget>
       </item>
@@ -1172,7 +1185,7 @@
         <item>
          <widget class="QLabel" name="tempAValue">
           <property name="text">
-           <string>---------</string>
+           <string>No Data</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
