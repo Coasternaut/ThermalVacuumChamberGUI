@@ -96,7 +96,6 @@ class mainApp(QMainWindow):
 
         self.updateEnableStatus()
         self.getNewData()
-        self.updateValueDisplays()
         self.updatePlots()
         
         self.totalTime.setText(str(round((time.time() - loopStartTime), 3)))
@@ -170,20 +169,6 @@ class mainApp(QMainWindow):
         self.db.commit()
 
         self.dbTime.setText(str(round((time.time() - clock), 3)))
-    
-    def updateValueDisplays(self):
-        for channel in self.dataChannels.values():
-            if channel.enabled:
-                if channel.currentValue == 'Off':
-                    self.setLabelTextColor(self.dataChannels['ion_pressure'].currentValueDisplay, 'Gauge Off', 'orange')
-                else:
-                    value = self.convertUnit(channel.currentValue, channel.dataCategory)
-                    if validNumber(value):
-                        self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
-                    else:
-                        self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
-            else:
-                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
 
     def updatePlots(self):
         clock = time.time()
@@ -215,6 +200,19 @@ class mainApp(QMainWindow):
         #plots data
         for channel in self.dataChannels.values():
             if channel.enabled:
+                # updates value display
+                if self.currentMode == 'replay':
+                    self.setLabelTextColor(channel.currentValueDisplay, 'Replay')
+                elif channel.currentValue == 'Off':
+                    self.setLabelTextColor(channel.currentValueDisplay, 'Gauge Off', 'orange')
+                else:
+                    value = self.convertUnit(channel.currentValue, channel.dataCategory)
+                    if validNumber(value):
+                        self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
+                    else:
+                        self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
+
+
                 cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
                                 WHERE timestamp BETWEEN ? AND ?""",
                                 (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
@@ -257,6 +255,9 @@ class mainApp(QMainWindow):
                         channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
 
                 channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
+            else:
+                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
+
         self.plottingTime.setText(str(round((time.time() - clock), 3)))
             
             
