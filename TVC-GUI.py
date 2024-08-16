@@ -61,9 +61,9 @@ class mainApp(QMainWindow):
                             'tempG': dataChannel('tempArd', 'tempG', 'Temp Sensor G', 'temp', self.tempGPlot, self.tempGEnable, self.tempGValue, self.tempGRename),
                             'bath_temp': dataChannel('chiller', 'bath_temp', 'Chiller Temp', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerActualTempValue),
                             'temp_setpoint': dataChannel('chiller', 'temp_setpoint', 'Chiller Setpoint', 'temp', self.chillerTempPlot, self.chillerTempEnable, self.chillerSetpointTempValue, None, False, 'g'),
-                            'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue),
-                            'CG1': dataChannel('ionGauge', 'CG1', 'Scroll Pump Pressure (CG1)', 'pres', self.CG1Plot, self.CG1Enable, self.CG1Value),
-                            'CG2': dataChannel('ionGauge', 'CG2', 'Chamber Pressure (CG2)', 'pres', self.CG2Plot, self.CG2Enable, self.CG2Value)
+                            'ion_pressure': dataChannel('ionGauge', 'ion_pressure', 'Ionization Pressure', 'pres', self.ionPlot, self.ionEnable, self.ionValue, color='m'),
+                            'CG1': dataChannel('ionGauge', 'CG1', 'Scroll Pump Pressure (CG1)', 'pres', self.CG1Plot, self.CG1Enable, self.CG1Value, color='m'),
+                            'CG2': dataChannel('ionGauge', 'CG2', 'Chamber Pressure (CG2)', 'pres', self.CG2Plot, self.CG2Enable, self.CG2Value, color='m')
                             }
         
         # current display units for each dataCategory. Values set in updateYAxisUnits()
