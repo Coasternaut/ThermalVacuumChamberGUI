@@ -191,7 +191,7 @@
       <item>
        <widget class="QPushButton" name="ionOffButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Gauge Off</string>
@@ -729,7 +729,7 @@
       <item>
        <widget class="QPushButton" name="stopChillerButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Stop Chiller</string>
@@ -894,7 +894,10 @@
          </font>
         </property>
         <property name="text">
-         <string>Performance Timing</string>
+         <string>Debug</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -987,12 +990,12 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="ionStatusButton">
+       <widget class="QPushButton" name="getStatusButton">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Get Ion Status</string>
+         <string>Get Device Status</string>
         </property>
        </widget>
       </item>

@@ -38,7 +38,7 @@ class mainApp(QMainWindow):
 
         self.ionOnButton.pressed.connect(self.ionOn)
         self.ionOffButton.pressed.connect(self.ionOff)
-        self.ionStatusButton.pressed.connect(self.ionStatus)
+        self.getStatusButton.pressed.connect(self.getStatus)
         
         # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
         # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
@@ -537,42 +537,45 @@ class mainApp(QMainWindow):
         print(f'Setting chiller setpoint to {newValue}. Output: ', writeSerialData(self.serialDevices['chiller'], writeMessage))
 
     def startChiller(self):
-        print('Starting chiller')
         if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 1\r'):
-            self.startChillerButton.setEnabled(False)
-            self.stopChillerButton.setEnabled(True)
-            print('Chiller on')
-        # print(startWriteStatus)
-        # if startWriteStatus:
-        #     requestedStatus = requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1)
-        #     print(requestedStatus)
-        #     print('Chiller on')
+            print('Chiller commanded on')
+            time.sleep(.05)
+            chillerStatus = requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
+            print('Chiller Status: ', chillerStatus)
+            if chillerStatus == '03 REMOTE START': # response if chiller on
+                self.startChillerButton.setEnabled(False)
+                self.stopChillerButton.setEnabled(True)
+        
 
     def stopChiller(self):
-        print('Stopping chiller')
         if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 0\r'):
-            self.startChillerButton.setEnabled(True)
-            self.stopChillerButton.setEnabled(False)
-            print('Chiller off')
-            # if requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1) == 0:
+            print('Chiller commanded off')
+            time.sleep(.05)
+            chillerStatus = requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
+            print('Chiller Status: ', chillerStatus)
+            if chillerStatus == '02 REMOTE STOP': # response if chiller off
+                self.startChillerButton.setEnabled(True)
+                # self.stopChillerButton.setEnabled(False)
 
     def ionOn(self):
         response = requestSerialData(self.serialDevices['ionGauge'], '#01IG1\r', 1)
-        print(f"Ion Gauge Response: {response}")
-        if response:
-            self.ionOnButton.setEnabled(False)
-            self.ionOffButton.setEnabled(True)
+        print(f"Commanded on. Ion Gauge Response: {response}")
+        # if response == '*01 PROGM OK':
+        #     self.ionOnButton.setEnabled(False)
+        #     self.ionOffButton.setEnabled(True)
 
     def ionOff(self):
         response = requestSerialData(self.serialDevices['ionGauge'], '#01IG0\r', 1)
-        print(f"Ion Gauge Response: {response}")
-        if response:
-            self.ionOnButton.setEnabled(True)
-            self.ionOffButton.setEnabled(False)
+        print(f"Commanded off. Ion Gauge Response: {response}")
+        # if response == '*01 PROGM OK':
+        #     self.ionOnButton.setEnabled(True)
+        #     self.ionOffButton.setEnabled(False)
 
-    def ionStatus(self):
+    def getStatus(self):
         print('Ion On/Off: ', requestSerialData(self.serialDevices['ionGauge'], '#01IGS\r', 1))
-        print('Status: ', requestSerialData(self.serialDevices['ionGauge'], '#01RS\r', 1))
+        print('Ion Status: ', requestSerialData(self.serialDevices['ionGauge'], '#01RS\r', 1))
+        print('Chiller On/Off: ', requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1))
+        print('Chiller Status: ', requestSerialData(self.serialDevices['chiller'], 'status\r', 1))
 
     def updateEnableStatus(self):
         # disables all devices to start
