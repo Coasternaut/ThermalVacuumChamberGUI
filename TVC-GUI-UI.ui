@@ -22,13 +22,29 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>1620</x>
-      <y>10</y>
-      <width>160</width>
-      <height>176</height>
+      <x>1599</x>
+      <y>370</y>
+      <width>171</width>
+      <height>204</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_24">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>App Control</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="startButton">
        <property name="font">
@@ -93,12 +109,12 @@
       <widget class="QLabel" name="label_11">
        <property name="font">
         <font>
-         <pointsize>14</pointsize>
-         <bold>false</bold>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>Rename Temp Sensors</string>
+        <string>Rename Temperature Sensors</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -191,20 +207,6 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>F:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>G:</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="tempERename">
            <property name="text">
@@ -215,6 +217,13 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>F:</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="tempFRename">
            <property name="text">
@@ -222,6 +231,13 @@
            </property>
            <property name="placeholderText">
             <string>Temp Sensor F</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>G:</string>
            </property>
           </widget>
          </item>
@@ -510,7 +526,7 @@
     <property name="geometry">
      <rect>
       <x>1350</x>
-      <y>250</y>
+      <y>10</y>
       <width>421</width>
       <height>341</height>
      </rect>
@@ -557,7 +573,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="chillerActualTempLabel">
            <property name="text">
-            <string>Actual:</string>
+            <string>Coolant Temp:</string>
            </property>
           </widget>
          </item>
@@ -674,200 +690,41 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>1590</x>
-      <y>770</y>
-      <width>196</width>
-      <height>198</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Performance Timing</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QFormLayout" name="formLayout_4">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Temp Read:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="tempTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>DB Save:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="dbTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Plotting: </string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="plottingTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Total:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLabel" name="totalTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string>Chiller Read:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_13">
-         <property name="text">
-          <string>Ion Read:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="ionTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="chillerTime">
-         <property name="text">
-          <string>0</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="formLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>910</x>
-      <y>790</y>
-      <width>231</width>
-      <height>96</height>
-     </rect>
-    </property>
-    <layout class="QFormLayout" name="formLayout_6">
-     <item row="1" column="1">
-      <widget class="QComboBox" name="presUnitBox">
-       <item>
-        <property name="text">
-         <string>Torr</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pa</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>inHg</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Atm</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_18">
-       <property name="text">
-        <string>Pressure Unit:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="tempUnitBox">
-       <item>
-        <property name="text">
-         <string>°C</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>°F</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>K</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_17">
-       <property name="text">
-        <string>Temperature Unit:</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>1450</x>
-      <y>600</y>
-      <width>221</width>
-      <height>143</height>
+      <x>1350</x>
+      <y>490</y>
+      <width>171</width>
+      <height>171</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
+      <widget class="QLabel" name="label_23">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Chiller Control</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
       <layout class="QFormLayout" name="formLayout_7">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>Setpoint (°C): </string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QSpinBox" name="chillerSetInput">
          <property name="minimum">
@@ -881,19 +738,12 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_19">
-         <property name="text">
-          <string>Chiller Setpoint (°C): </string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
      <item>
       <widget class="QPushButton" name="chillerSetButton">
        <property name="text">
-        <string>Set Chiller Temp</string>
+        <string>Apply Setpoint</string>
        </property>
       </widget>
      </item>
@@ -1006,185 +856,417 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="formLayoutWidget">
+   <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>1160</x>
-      <y>790</y>
-      <width>289</width>
-      <height>179</height>
+      <x>1610</x>
+      <y>740</y>
+      <width>166</width>
+      <height>236</height>
      </rect>
     </property>
-    <layout class="QFormLayout" name="formLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_3">
        <property name="font">
         <font>
          <pointsize>12</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
-        <string>Display Time:</string>
+        <string>Performance Timing</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="displayTimeBox">
-       <item>
-        <property name="text">
-         <string>Last # Hours</string>
-        </property>
+     <item>
+      <layout class="QFormLayout" name="formLayout_4">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Temp Read:</string>
+         </property>
+        </widget>
        </item>
-       <item>
-        <property name="text">
-         <string>Full Time</string>
-        </property>
+       <item row="1" column="1">
+        <widget class="QLabel" name="tempTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
-       <item>
-        <property name="text">
-         <string>Custom Range</string>
-        </property>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Chiller Read:</string>
+         </property>
+        </widget>
        </item>
-      </widget>
+       <item row="2" column="1">
+        <widget class="QLabel" name="chillerTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Ion Read:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="ionTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>DB Save:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="dbTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Plotting: </string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="plottingTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Total:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="totalTime">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="hoursLabel">
-       <property name="text">
-        <string>Last # Hours:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QDoubleSpinBox" name="hoursBox">
-       <property name="minimum">
-        <double>0.130000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.125000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="displayBeginningLabel">
+     <item>
+      <widget class="QPushButton" name="ionStatusButton">
        <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Beginning:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QDateTimeEdit" name="dateTimeEditBegin">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="currentSection">
-        <enum>QDateTimeEdit::MonthSection</enum>
-       </property>
-       <property name="displayFormat">
-        <string>M/d/yyyy h:mm:ss</string>
-       </property>
-       <property name="calendarPopup">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="displayEndLabel">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>End:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QDateTimeEdit" name="dateTimeEditEnd">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="currentSection">
-        <enum>QDateTimeEdit::MonthSection</enum>
-       </property>
-       <property name="displayFormat">
-        <string>M/d/yyyy h:mm:ss</string>
-       </property>
-       <property name="calendarPopup">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QPushButton" name="applyCustomRangeButton">
-       <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
-        <string>Apply Custom Range</string>
+        <string>Get Ion Status</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="ionOffButton">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QWidget" name="verticalLayoutWidget_5">
     <property name="geometry">
      <rect>
-      <x>1360</x>
-      <y>126</y>
-      <width>121</width>
-      <height>30</height>
+      <x>1350</x>
+      <y>370</y>
+      <width>171</width>
+      <height>96</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Ion Gauge Off</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_12">
+     <item>
+      <widget class="QLabel" name="label_20">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Ion Gauge Control</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ionOnButton">
+       <property name="text">
+        <string>Gauge On</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ionOffButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Gauge Off</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
-   <widget class="QPushButton" name="ionOnButton">
+   <widget class="QWidget" name="verticalLayoutWidget_6">
     <property name="geometry">
      <rect>
-      <x>1360</x>
-      <y>90</y>
-      <width>121</width>
-      <height>30</height>
+      <x>880</x>
+      <y>740</y>
+      <width>221</width>
+      <height>98</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Ion Gauge On</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_16">
+     <item>
+      <widget class="QLabel" name="label_21">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Display Units</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QFormLayout" name="formLayout_6">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>Temperature:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="tempUnitBox">
+         <item>
+          <property name="text">
+           <string>°C</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>°F</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>K</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>Pressure:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="presUnitBox">
+         <item>
+          <property name="text">
+           <string>Torr</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Pa</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>inHg</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Atm</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
-   <widget class="QPushButton" name="ionStatusButton">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
+   <widget class="QWidget" name="verticalLayoutWidget_7">
     <property name="geometry">
      <rect>
-      <x>1360</x>
-      <y>170</y>
-      <width>121</width>
-      <height>30</height>
+      <x>1120</x>
+      <y>740</y>
+      <width>271</width>
+      <height>209</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Get Status</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_17">
+     <item>
+      <widget class="QLabel" name="label_22">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Display Time</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Display Time:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="displayTimeBox">
+         <item>
+          <property name="text">
+           <string>Last # Hours</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Full Time</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Custom Range</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="hoursLabel">
+         <property name="text">
+          <string>Last # Hours:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QDoubleSpinBox" name="hoursBox">
+         <property name="minimum">
+          <double>0.130000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.125000000000000</double>
+         </property>
+         <property name="value">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="displayBeginningLabel">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Beginning:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDateTimeEdit" name="dateTimeEditBegin">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="currentSection">
+          <enum>QDateTimeEdit::MonthSection</enum>
+         </property>
+         <property name="displayFormat">
+          <string>M/d/yyyy h:mm:ss</string>
+         </property>
+         <property name="calendarPopup">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="displayEndLabel">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>End:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QDateTimeEdit" name="dateTimeEditEnd">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="currentSection">
+          <enum>QDateTimeEdit::MonthSection</enum>
+         </property>
+         <property name="displayFormat">
+          <string>M/d/yyyy h:mm:ss</string>
+         </property>
+         <property name="calendarPopup">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="applyCustomRangeButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Apply Custom Range</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
