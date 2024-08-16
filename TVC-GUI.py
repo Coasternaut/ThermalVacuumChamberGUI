@@ -78,9 +78,9 @@ class mainApp(QMainWindow):
             channel.plot.setAxisItems(axisItems = {'bottom': pg.DateAxisItem()})
             channel.plot.setLabel('bottom', 'Time')
 
+        self.timeRangeMode = 'hours'
         self.updateYAxisUnits()
 
-        self.timeRangeMode = 'hours'
         self.serialDevices  = {
             'tempArd': serialDevice('tempArd', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
             'chiller': serialDevice('chiller', 'AL066BK6', serial.Serial(None, 4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=.15, write_timeout=.1, rtscts=True)),
@@ -196,68 +196,68 @@ class mainApp(QMainWindow):
         else:
             raise ValueError('No time range specified')
         
+        if self.db:
+            cur = self.db.cursor()
+            #plots data
+            for channel in self.dataChannels.values():
+                if channel.enabled:
+                    # updates value display
+                    if self.currentMode == 'replay':
+                        self.setLabelTextColor(channel.currentValueDisplay, 'Replay')
+                    elif channel.currentValue == 'Off':
+                        self.setLabelTextColor(channel.currentValueDisplay, 'Gauge Off', 'orange')
+                    else:
+                        value = self.convertUnit(channel.currentValue, channel.dataCategory)
+                        if validNumber(value):
+                            self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
+                        else:
+                            self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
 
-        cur = self.db.cursor()
-        #plots data
-        for channel in self.dataChannels.values():
-            if channel.enabled:
-                # updates value display
-                if self.currentMode == 'replay':
-                    self.setLabelTextColor(channel.currentValueDisplay, 'Replay')
-                elif channel.currentValue == 'Off':
-                    self.setLabelTextColor(channel.currentValueDisplay, 'Gauge Off', 'orange')
+
+                    cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
+                                    WHERE timestamp BETWEEN ? AND ?""",
+                                    (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
+                    data = cur.fetchall()
+
+                    # print(f'Reading from {channel.dbName} - Data: {data}')
+
+                    xAxis = []
+                    yAxis = []
+
+                    lastInputTimestamp = data[0][0]
+
+                    for d in data:
+                        # checks for gap in data and adds NaN point to split plots
+                        if d[0] - lastInputTimestamp > 3:
+                            xAxis.append(lastInputTimestamp + 1)
+                            yAxis.append(np.nan)
+                        lastInputTimestamp = d[0]
+                        xAxis.append(lastInputTimestamp)
+                        if validNumber(d[1]):
+                            yAxis.append(self.convertUnit(d[1], channel.dataCategory))
+                        else:
+                            #print('Invalid data for graphing: ', d[1])
+                            yAxis.append(np.nan)
+
+                    if channel.singlePlot:
+                        channel.plot.clear()
+                        channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
+
+                    if channel.device != 'chiller' and yAxis:
+                        #print(f'Channel: {channel.dbName}  Data: {yAxis}')
+                        yMin = min(yAxis)
+                        yMax = max(yAxis)
+
+                        yRangeMin = min(yMin * 0.95, yMin - self.minYBorder)
+                        yRangeMax = max(yMax * 1.05, yMax + self.minYBorder)
+
+                        if not (np.isnan(yRangeMin) or np.isnan(yRangeMax)):
+                            #print(f'Updating Y range - Channel: {channel.dbName} Min: {yRangeMin}, Max: {yRangeMax}')
+                            channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
+
+                    channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
                 else:
-                    value = self.convertUnit(channel.currentValue, channel.dataCategory)
-                    if validNumber(value):
-                        self.setLabelTextColor(channel.currentValueDisplay, f'{value} {self.currentUnits[channel.dataCategory]}')
-                    else:
-                        self.setLabelTextColor(channel.currentValueDisplay, 'No Data', 'red')
-
-
-                cur.execute(f"""SELECT timestamp, {channel.dbName} FROM data_log 
-                                WHERE timestamp BETWEEN ? AND ?""",
-                                (self.beginGraphTimestamp, self.endGraphTimestamp)) # TODO replace fstring
-                data = cur.fetchall()
-
-                # print(f'Reading from {channel.dbName} - Data: {data}')
-
-                xAxis = []
-                yAxis = []
-
-                lastInputTimestamp = data[0][0]
-
-                for d in data:
-                    # checks for gap in data and adds NaN point to split plots
-                    if d[0] - lastInputTimestamp > 3:
-                        xAxis.append(lastInputTimestamp + 1)
-                        yAxis.append(np.nan)
-                    lastInputTimestamp = d[0]
-                    xAxis.append(lastInputTimestamp)
-                    if validNumber(d[1]):
-                        yAxis.append(self.convertUnit(d[1], channel.dataCategory))
-                    else:
-                        #print('Invalid data for graphing: ', d[1])
-                        yAxis.append(np.nan)
-
-                if channel.singlePlot:
-                    channel.plot.clear()
-                    channel.plot.setXRange(self.beginGraphTimestamp, self.endGraphTimestamp, update=False)
-
-                if channel.device != 'chiller' and yAxis:
-                    #print(f'Channel: {channel.dbName}  Data: {yAxis}')
-                    yMin = min(yAxis)
-                    yMax = max(yAxis)
-
-                    yRangeMin = min(yMin * 0.95, yMin - self.minYBorder)
-                    yRangeMax = max(yMax * 1.05, yMax + self.minYBorder)
-
-                    if not (np.isnan(yRangeMin) or np.isnan(yRangeMax)):
-                        #print(f'Updating Y range - Channel: {channel.dbName} Min: {yRangeMin}, Max: {yRangeMax}')
-                        channel.plot.setYRange(yRangeMin, yRangeMax, update=False)
-
-                channel.plot.plot(xAxis, yAxis, pen=channel.color, connect='finite')
-            else:
-                self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
+                    self.setLabelTextColor(channel.currentValueDisplay, 'Disabled', 'gray')
 
         self.plottingTime.setText(str(round((time.time() - clock), 3)))
             
@@ -510,7 +510,9 @@ class mainApp(QMainWindow):
                 channel.plot.setLabel('left', 'Temperature', units=self.currentUnits['temp'])
             if channel.dataCategory == 'pres':
                 channel.plot.setLabel('left', 'Pressure', units=self.currentUnits['pres'])
-    
+
+        self.updatePlots()
+
     def convertUnit(self, value, dataCategory):
         if validNumber(value):
             if dataCategory == 'temp':
