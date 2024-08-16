@@ -436,6 +436,9 @@ class mainApp(QMainWindow):
         df.to_sql('data_log', self.db, index=False)
         self.db.commit()
 
+        # sets the date range based on the imported data
+        self.readDateRange()
+
         # displays full range
         self.displayTimeBox.setCurrentIndex(1)
         self.updateTimeRangeMode() # also calls updatePlots
