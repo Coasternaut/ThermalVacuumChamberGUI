@@ -150,15 +150,17 @@ class mainApp(QMainWindow):
             else:
                 self.dataChannels['ion_pressure'].currentValue = None
 
-            if self.dataChannels['CG1'].enabled:
-                self.dataChannels['CG1'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG1\r', 13))
-            else:
-                self.dataChannels['CG1'].currentValue = None
-            
-            if self.dataChannels['CG2'].enabled:
-                self.dataChannels['CG2'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
-            else:
-                self.dataChannels['CG2'].currentValue = None
+            # only gets CG data if there is a response from the ion gauge request
+            if self.dataChannels['ion_pressure'].currentValue:
+                if self.dataChannels['CG1'].enabled:
+                    self.dataChannels['CG1'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG1\r', 13))
+                else:
+                    self.dataChannels['CG1'].currentValue = None
+                
+                if self.dataChannels['CG2'].enabled:
+                    self.dataChannels['CG2'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
+                else:
+                    self.dataChannels['CG2'].currentValue = None
             
 
         self.ionTime.setText(str(round((time.time() - clock), 3)))
