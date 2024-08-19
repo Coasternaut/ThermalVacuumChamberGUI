@@ -86,7 +86,11 @@ class mainApp(QMainWindow):
 
         # reads from each device to initialize COM port
         for device in self.serialDevices.values():
-            resetConnection(device)
+            try:
+                device.connectionObject.port = getDevicePath(device.serialNumber)
+                device.connectionObject.open()
+            except serial.SerialException as e:
+                print(f"Device {device.name} not found.")
 
     # loop called every second when in live logging mode
     def liveUpdateLoop(self):
@@ -103,7 +107,7 @@ class mainApp(QMainWindow):
 
         if self.serialDevices['tempArd'].enabled:
             # gets temp data
-            tempData = requestSerialData(self.serialDevices['tempArd'], 'D', 29)
+            tempData = self.requestSerialData(self.serialDevices['tempArd'], 'D', 29)
             
             # if temp data exists
             if tempData:
@@ -127,12 +131,12 @@ class mainApp(QMainWindow):
         
         if self.serialDevices['chiller'].enabled:
             # get bath temp
-            self.dataChannels['bath_temp'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 4))
+            self.dataChannels['bath_temp'].currentValue = safeFloat(self.requestSerialData(self.serialDevices['chiller'], 'in_pv_00\r', 4))
             
             # only gets setpoint if bath temp was valid
             if self.dataChannels['bath_temp'].currentValue != None:
                 # get temperature setpoint
-                self.dataChannels['temp_setpoint'].currentValue = safeFloat(requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 4))
+                self.dataChannels['temp_setpoint'].currentValue = safeFloat(self.requestSerialData(self.serialDevices['chiller'], 'in_sp_00\r', 4))
             else:
                 self.dataChannels['temp_setpoint'].currentValue = None
 
@@ -142,17 +146,17 @@ class mainApp(QMainWindow):
         if self.serialDevices['ionGauge'].enabled:
             # gets pressures from ion gauges
             if self.dataChannels['ion_pressure'].enabled:
-                self.dataChannels['ion_pressure'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13))
+                self.dataChannels['ion_pressure'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RD\r', 13))
             else:
                 self.dataChannels['ion_pressure'].currentValue = None
 
             if self.dataChannels['CG1'].enabled:
-                self.dataChannels['CG1'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RDCG1\r', 13))
+                self.dataChannels['CG1'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG1\r', 13))
             else:
                 self.dataChannels['CG1'].currentValue = None
             
             if self.dataChannels['CG2'].enabled:
-                self.dataChannels['CG2'].currentValue = self.validateIonPressure(requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
+                self.dataChannels['CG2'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
             else:
                 self.dataChannels['CG2'].currentValue = None
             
@@ -274,7 +278,6 @@ class mainApp(QMainWindow):
             self.openDB(f'logs/log{datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")}.db') # creates new database file
         
         self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure, CG1, CG2)")
-        
         # sets beginning of time range if no range already specified
         if not self.startTime:
             self.startTime = time.time()
@@ -533,13 +536,13 @@ class mainApp(QMainWindow):
     def setChillerSetpoint(self):
         newValue = self.chillerSetInput.value()
         writeMessage = f'out_sp_00 {newValue}\r'
-        print(f'Setting chiller setpoint to {newValue}. Output: ', writeSerialData(self.serialDevices['chiller'], writeMessage))
+        print(f'Setting chiller setpoint to {newValue}. Output: ', self.writeSerialData(self.serialDevices['chiller'], writeMessage))
 
     def startChiller(self):
-        if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 1\r'):
+        if self.writeSerialData(self.serialDevices['chiller'], 'out_mode_05 1\r'):
             print('Chiller commanded on')
             time.sleep(.05)
-            chillerStatus = requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
+            chillerStatus = self.requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
             print('Chiller Status: ', chillerStatus)
             if chillerStatus == '03 REMOTE START': # response if chiller on
                 self.startChillerButton.setEnabled(False)
@@ -547,34 +550,34 @@ class mainApp(QMainWindow):
         
 
     def stopChiller(self):
-        if writeSerialData(self.serialDevices['chiller'], 'out_mode_05 0\r'):
+        if self.writeSerialData(self.serialDevices['chiller'], 'out_mode_05 0\r'):
             print('Chiller commanded off')
             time.sleep(.05)
-            chillerStatus = requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
+            chillerStatus = self.requestSerialData(self.serialDevices['chiller'], 'status\r', 1)
             print('Chiller Status: ', chillerStatus)
             if chillerStatus == '02 REMOTE STOP': # response if chiller off
                 self.startChillerButton.setEnabled(True)
                 # self.stopChillerButton.setEnabled(False)
 
     def ionOn(self):
-        response = requestSerialData(self.serialDevices['ionGauge'], '#01IG1\r', 1)
+        response = self.requestSerialData(self.serialDevices['ionGauge'], '#01IG1\r', 1)
         print(f"Commanded on. Ion Gauge Response: {response}")
         # if response == '*01 PROGM OK':
         #     self.ionOnButton.setEnabled(False)
         #     self.ionOffButton.setEnabled(True)
 
     def ionOff(self):
-        response = requestSerialData(self.serialDevices['ionGauge'], '#01IG0\r', 1)
+        response = self.requestSerialData(self.serialDevices['ionGauge'], '#01IG0\r', 1)
         print(f"Commanded off. Ion Gauge Response: {response}")
         # if response == '*01 PROGM OK':
         #     self.ionOnButton.setEnabled(True)
         #     self.ionOffButton.setEnabled(False)
 
     def getStatus(self):
-        print('Ion On/Off: ', requestSerialData(self.serialDevices['ionGauge'], '#01IGS\r', 1))
-        print('Ion Status: ', requestSerialData(self.serialDevices['ionGauge'], '#01RS\r', 1))
-        print('Chiller On/Off: ', requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1))
-        print('Chiller Status: ', requestSerialData(self.serialDevices['chiller'], 'status\r', 1))
+        print('Ion On/Off: ', self.requestSerialData(self.serialDevices['ionGauge'], '#01IGS\r', 1))
+        print('Ion Status: ', self.requestSerialData(self.serialDevices['ionGauge'], '#01RS\r', 1))
+        print('Chiller On/Off: ', self.requestSerialData(self.serialDevices['chiller'], 'in_mode_05\r', 1))
+        print('Chiller Status: ', self.requestSerialData(self.serialDevices['chiller'], 'status\r', 1))
 
     def updateEnableStatus(self):
         # disables all devices to start
@@ -609,6 +612,68 @@ class mainApp(QMainWindow):
             else:
                 return safeFloat(input[4:]) # splits data from return header
         else: 
+            return None
+        
+    def serialLog(self, device, error, message):
+        if self.db:
+            self.db.execute("CREATE TABLE IF NOT EXISTS serial_log(timestamp, device, error, message)")
+            self.db.execute("INSERT INTO serial_log(timestamp, device, error, message) VALUES(?, ?, ?, ?)", (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), device, error, message))
+            self.db.commit()
+        else:
+            print(f"No DB exists to log serial error. Device: {device}   Error: {error}   Message: {message}")
+
+
+    # returns True if successful, False otherwise
+    def writeSerialData(self, serialDevice, dataString):
+        try:
+            serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
+            return True
+        except serial.serialutil.PortNotOpenError as e:
+            self.serialLog(serialDevice.name, type(e).__name__, str(e))
+            try:
+                resetConnection(serialDevice)
+                print('Second data write: ', dataString)
+                serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
+                return True
+            except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error) as e:
+                self.serialLog(serialDevice.name, type(e).__name__, str(e))
+                #print('Failed to reopen connection and write data')
+                return False
+        except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error) as e:
+            self.serialLog(serialDevice.name, type(e).__name__, str(e))
+            return False
+
+    def requestSerialData(self, serialDevice, requestString, minByteLength):
+        data = None
+        try:
+            serialDevice.connectionObject.reset_input_buffer()
+            serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
+            data = serialDevice.connectionObject.read_until(b'\r')
+            dataLen = len(data)
+            # print(f'Data: {data} - Data len: {dataLen}')
+            if dataLen < minByteLength:
+                # log if some data is read
+                # print(f'{datetime.datetime.now()}  Return too short   Device: {serialDevice.name}   Data: {data}  Min Length: {minByteLength}   Actual Length: {dataLen}')
+                self.serialLog(serialDevice.name, 'Return too short', f'Data: {data}  Min Length: {minByteLength}   Actual Length: {dataLen}')
+                return None
+            data = data.decode('ascii').strip()
+        except serial.serialutil.SerialTimeoutException as e:
+            #print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
+            self.serialLog(serialDevice.name, type(e).__name__, str(e))
+            return None
+        except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
+            # print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
+            self.serialLog(serialDevice.name, type(e).__name__, str(e))
+            try:
+                resetConnection(serialDevice)
+                return None
+            except serial.SerialException:
+                return None
+        if data:
+            return data
+        else:
+            #print(f'{datetime.datetime.now()}  Data not True   Device: {serialDevice.name}   Data: {data}')
+            self.serialLog(serialDevice.name, 'Data not True', f'Data: {data}')
             return None
 
     # cleanly closes the application
@@ -667,62 +732,6 @@ def getDevicePath(serialNumber):
     for port in serial.tools.list_ports.comports():
         if port.serial_number == serialNumber:
             return port.device
-    
-        
-# returns True if successful, False otherwise
-def writeSerialData(serialDevice, dataString):
-    try:
-        serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
-        return True
-    except (serial.serialutil.PortNotOpenError):
-        try:
-            resetConnection(serialDevice)
-            print('Second data write: ', dataString)
-            serialDevice.connectionObject.write(bytes(dataString, 'ascii'))
-            return True
-        except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error):
-            print('Failed to reopen connection and write data')
-            return False
-    except (serial.serialutil.SerialException, serial.serialutil.SerialTimeoutException, termios.error):
-        return False
-        
-def requestSerialData(serialDevice, requestString, minByteLength):
-    data = None
-    try:
-        serialDevice.connectionObject.reset_input_buffer()
-        # if serialDevice.name == 'chiller':
-        #     print('buffer reset')
-        serialDevice.connectionObject.write(bytes(requestString, 'ascii'))
-        # if serialDevice.name == 'chiller':
-        #     print(f'{datetime.datetime.now()}  Writing to {serialDevice.name}: {bytes(requestString, 'ascii')}')
-        data = serialDevice.connectionObject.read_until(b'\r')
-        dataLen = len(data)
-        # print(f'Data: {data} - Data len: {dataLen}')
-        if dataLen < minByteLength:
-            # log if some data is read
-            if dataLen != 0:
-                print(f'{datetime.datetime.now()}  Return too short   Device: {serialDevice.name}   Data: {data}  Min Length: {minByteLength}   Actual Length: {dataLen}')
-            return None
-        # if serialDevice.name == 'chiller':
-        #     print(f'{datetime.datetime.now()}  Reading from {serialDevice.name}: {data}')
-        #     print(f'Bytes length - {serialDevice.name}: ', len(data))
-        data = data.decode('ascii').strip()
-        #print(f'Data - {serialDevice.name}: ', data)
-    except (serial.serialutil.SerialTimeoutException) as e:
-        #print(f'{datetime.datetime.now()}  Timeout device {serialDevice.name}: {type(e)} {e}')
-        return None
-    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException, termios.error) as e:
-        # print(f'{datetime.datetime.now()}  Resetting device {serialDevice.name}: {type(e)} {e}')
-        try:
-            resetConnection(serialDevice)
-            return None
-        except serial.SerialException:
-            return None
-    if data:
-        return data
-    else:
-        print(f'{datetime.datetime.now()}  Data not True   Device: {serialDevice.name}   Data: {data}')
-        return None
         
 def resetConnection(serialDevice):
     serialDevice.connectionObject.close()
