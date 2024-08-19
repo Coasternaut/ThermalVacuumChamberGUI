@@ -26,7 +26,7 @@ movingAvg sensorAvgs[NUM_SENSORS] = {movingAvg(AVERAGE_POINTS),
 void setup() {
   Serial.begin(9600);
 
-  analogReference(EXTERNAL);
+  // analogReference(EXTERNAL);
 
   for (int i = 0; i < NUM_SENSORS; i++) {
     sensorAvgs[i].begin();
@@ -41,6 +41,10 @@ void loop() {
     
     if (input == 68) { // ASCII for "D"
       outputValues = true;
+    }
+
+    if (input == 100) { // ASCII for "d"
+      Serial.println(analogRead(A2));
     }
     
    input = 0;
@@ -73,6 +77,6 @@ void loop() {
 
 // converts an ADC reading to Celsius * 1000
 int ADC_to_mCelsius(int reading) {
-  long uV = (reading * AREF_uV) / 1024;
-  return (uV - 500000) / 10;
+  long uV = (reading * 5000000) / 1024;
+  return (uV) / 10;
 }
