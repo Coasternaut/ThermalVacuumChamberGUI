@@ -86,7 +86,7 @@ class mainApp(QMainWindow):
 
         # reads from each device to initialize COM port
         for device in self.serialDevices.values():
-            readSerialData(device)
+            resetConnection(device)
 
     # loop called every second when in live logging mode
     def liveUpdateLoop(self):
@@ -677,21 +677,6 @@ def getDevicePath(serialNumber):
         if port.serial_number == serialNumber:
             return port.device
     
-    return None
-
-def readSerialData(serialDevice):
-    try:
-        data = serialDevice.connectionObject.readline().decode('ascii')
-    except (serial.serialutil.PortNotOpenError, serial.serialutil.SerialException):
-        try:
-            resetConnection(serialDevice)
-            data = serialDevice.connectionObject.readline().decode('ascii')
-        except serial.SerialException:
-            return None
-    if data:
-        return data
-    else:
-        return None
         
 # returns True if successful, False otherwise
 def writeSerialData(serialDevice, dataString):
