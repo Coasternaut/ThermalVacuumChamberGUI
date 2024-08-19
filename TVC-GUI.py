@@ -1,6 +1,6 @@
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt6.QtCore import QTimer, QThread, QDateTime
+from PyQt6.QtCore import QTimer, QDateTime
 import pyqtgraph as pg
 import sys, time, datetime, sqlite3
 import serial, serial.serialutil, serial.tools, serial.tools.list_ports
@@ -39,9 +39,6 @@ class mainApp(QMainWindow):
         self.ionOnButton.pressed.connect(self.ionOn)
         self.ionOffButton.pressed.connect(self.ionOff)
         self.getStatusButton.pressed.connect(self.getStatus)
-        
-        # self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
-        # self.dateTimeEditEnd.setDateTime(QDateTime.currentDateTime())
         
         self.liveUpdateLoopTimer = QTimer(self)
         self.liveUpdateLoopTimer.setInterval(1000)
@@ -110,7 +107,7 @@ class mainApp(QMainWindow):
             
             # if temp data exists
             if tempData:
-                # converts data string into list of floatsMin Length: {minByteLength}   Actual Length: {dataLen}'
+                # converts data string into list of floats
                 tempValuesStr = tempData.split(';')
                 tempValuesStr.pop()
                 
@@ -278,7 +275,7 @@ class mainApp(QMainWindow):
         
         self.db.execute("CREATE TABLE IF NOT EXISTS data_log(timestamp, tempA, tempB, tempC, tempD, tempE, tempF, tempG, bath_temp, temp_setpoint, ion_pressure, CG1, CG2)")
         
-        # sets beginning of time range if 
+        # sets beginning of time range if no range already specified
         if not self.startTime:
             self.startTime = time.time()
             self.dateTimeEditBegin.setDateTime(QDateTime.currentDateTime())
@@ -783,13 +780,6 @@ def validNumber(input):
 
 
 if __name__ == '__main__':
-    
-    currentChillerValues = {
-        'bath_temp': None,
-        'pump_pres': None,
-        'temp_setpoint': None
-    }
-    
     app = QApplication([])
     
     mainApp = mainApp()
