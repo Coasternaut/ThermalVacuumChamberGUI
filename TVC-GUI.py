@@ -639,15 +639,6 @@ class mainApp(QMainWindow):
             device.connectionObject.close()
             #print(f'Closed {device.name}')
         
-
-        
-            
-# Converts a epoch timestamp (float) to a QDateTime object
-def QDateTimeFromTimestamp(timestamp):
-    dt = QDateTime(0,0,0,0,0) # placeholder
-    dt.setSecsSinceEpoch(round(timestamp))
-    return dt
-        
                 
 @dataclass       
 class dataChannel:
@@ -737,6 +728,13 @@ def resetConnection(serialDevice):
     serialDevice.connectionObject.close()
     serialDevice.connectionObject.port = getDevicePath(serialDevice.serialNumber)
     serialDevice.connectionObject.open()
+
+                
+# Converts a epoch timestamp (float) to a QDateTime object
+def QDateTimeFromTimestamp(timestamp):
+    dt = QDateTime(0,0,0,0,0) # placeholder
+    dt.setSecsSinceEpoch(round(timestamp))
+    return dt
 
 # converts a string to a float, returning None if the string is not a number
 def safeFloat(string):
