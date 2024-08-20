@@ -26,6 +26,7 @@ class mainApp(QMainWindow):
         self.presUnitBox.currentTextChanged.connect(self.updateYAxisUnits)
         
         self.renameButton.pressed.connect(self.saveLabels)
+        self.resetLabelsButton.pressed.connect(self.readDBLabels)
         
         self.exportCSVbutton.pressed.connect(self.exportData)
         self.importCSVbutton.pressed.connect(self.importData)
@@ -49,6 +50,8 @@ class mainApp(QMainWindow):
         self.startTime = None
 
         self.db = None
+
+        self.configDB = sqlite3.connect('config.db')
         
         self.dataChannels = {'tempA': dataChannel('tempArd', 'tempA', 'Temp Sensor A', 'temp', self.tempAPlot, self.tempAEnable, self.tempAValue, self.tempARename),
                             'tempB': dataChannel('tempArd', 'tempB', 'Temp Sensor B', 'temp', self.tempBPlot, self.tempBEnable, self.tempBValue, self.tempBRename),
@@ -77,6 +80,8 @@ class mainApp(QMainWindow):
 
         self.timeRangeMode = 'hours'
         self.updateYAxisUnits()
+
+        self.readDBLabels('config')
 
         self.serialDevices  = {
             'tempArd': serialDevice('tempArd', 'D12A5A1851544B5933202020FF080B15', serial.Serial(None, 9600, timeout=1)),
@@ -338,31 +343,44 @@ class mainApp(QMainWindow):
                     channel.label = channel.renameLabel.text()
                 self.db.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
                 self.db.commit()
+
+                self.configDB.execute("REPLACE INTO labels(channel, label) VALUES (?, ?)", (channel.dbName, channel.label))
+                self.configDB.commit()
                 
                 channel.enableDisplay.setText(channel.label)
                 channel.renameLabel.clear()
                 channel.renameLabel.setPlaceholderText(channel.label)
         
-    def readDBLabels(self):
-        
-        cur = self.db.cursor()
-        cur.row_factory = lambda cursor, row: row[0]
-        
-        for channel in self.dataChannels.values():
-            if channel.renameLabel:
-                try:
-                    cur.execute("SELECT label FROM labels WHERE channel = ?", (channel.dbName,))
-                except sqlite3.OperationalError as e:
-                    if str(e) != "no such table: labels":
-                        print('An error occured reading labels from the database')
-                        raise
-                    else:
-                        readLabel = cur.fetchone()
-                        if readLabel:
-                            channel.label = readLabel
+    def readDBLabels(self, readLocation='default'):
+        activeDB = None
+        table = 'labels'
 
-                            channel.enableDisplay.setText(channel.label)
-                            channel.renameLabel.setPlaceholderText(channel.label)
+        if readLocation == 'default':
+            activeDB = self.configDB
+            table = 'default_labels'
+        elif readLocation == 'config':
+            activeDB = self.configDB
+        elif readLocation == 'log' and self.db:
+            activeDB = self.db
+
+        cur = activeDB.cursor()
+
+        cur.execute(f"SELECT label FROM {table}")
+        labels = cur.fetchall()
+
+        if readLocation == 'default':
+            cur.execute('DELETE FROM labels')
+            cur.execute('REPLACE INTO labels SELECT * FROM default_labels')
+            activeDB.commit()
+            
+        labels = [i[0] for i in labels] # removes single tuples
+        
+        if labels:
+            for label, channel in zip(labels, list(self.dataChannels.values())[:7]):
+                channel.label = label
+
+                channel.enableDisplay.setText(channel.label)
+                channel.renameLabel.setPlaceholderText(channel.label)
                 
     def updateTimeRangeMode(self):
         selection = self.displayTimeBox.currentIndex()

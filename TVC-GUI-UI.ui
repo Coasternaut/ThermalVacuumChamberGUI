@@ -385,11 +385,22 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="renameButton">
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_14">
+        <item>
+         <widget class="QPushButton" name="renameButton">
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="resetLabelsButton">
+          <property name="text">
+           <string>Reset To Defaults</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
