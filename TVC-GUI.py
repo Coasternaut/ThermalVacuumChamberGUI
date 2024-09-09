@@ -161,7 +161,9 @@ class mainApp(QMainWindow):
                     self.dataChannels['CG2'].currentValue = self.validateIonPressure(self.requestSerialData(self.serialDevices['ionGauge'], '#01RDCG2\r', 13))
                 else:
                     self.dataChannels['CG2'].currentValue = None
-            
+            else:
+                self.dataChannels['CG1'].currentValue = None
+                self.dataChannels['CG2'].currentValue = None
 
         self.ionTime.setText(str(round((time.time() - clock), 3)))
 
