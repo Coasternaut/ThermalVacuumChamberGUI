@@ -1,0 +1,23 @@
+%TF.GenerationSoftware,KiCad,Pcbnew,8.0.3*%
+%TF.CreationDate,2024-07-08T14:58:30-04:00*%
+%TF.ProjectId,TempSensorArduino,54656d70-5365-46e7-936f-724172647569,rev?*%
+%TF.SameCoordinates,Original*%
+%TF.FileFunction,Profile,NP*%
+%FSLAX46Y46*%
+G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
+G04 Created by KiCad (PCBNEW 8.0.3) date 2024-07-08 14:58:30*
+%MOMM*%
+%LPD*%
+G01*
+G04 APERTURE LIST*
+%TA.AperFunction,Profile*%
+%ADD10C,0.050000*%
+%TD*%
+G04 APERTURE END LIST*
+D10*
+X139000000Y-62500000D02*
+X172000000Y-62500000D01*
+X172000000Y-126000000D01*
+X139000000Y-126000000D01*
+X139000000Y-62500000D01*
+M02*
