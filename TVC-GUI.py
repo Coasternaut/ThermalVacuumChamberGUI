@@ -761,7 +761,7 @@ def safeFloat(string):
 
 # returns None if temperature value is outside of the supported range for the sensor
 def validateTemp(temp):
-    if temp > -55 and temp < 130:
+    if temp > -60 and temp < 135:
         return temp
     else:
         return None
