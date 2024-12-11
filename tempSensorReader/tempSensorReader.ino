@@ -58,7 +58,7 @@ void loop() {
       
       // prints temperature data if requested
       if (outputValues) {
-        Serial.print((sensorAvgs[i].getAvg()) / 1000.0, 1);
+        Serial.print((sensorAvgs[i].getAvg()) / 100.0, 1); // converts back to Celsius
         Serial.print(';');
       }
     }
@@ -79,9 +79,9 @@ int ADC_to_mCelsius(int reading) {
   return (uV - 500000) / 10;
 }
 
-// convert ADC reading to milli Celsius for LM19 Temperature Sensor
+// convert ADC reading to centi Celsius for LM19 Temperature Sensor
 int ADC_to_mCelsius_LM19(int reading){
   double V = (reading * AREF_mV / 1000.) / 1024.;
   double temp = -1481.96 + sqrt(2.1962 * pow(10, 6) + ( 1.8639 - V ) / (3.88 * pow(10, -6)));
-  return int(temp * 1000);
+  return int(temp * 100);
 }
