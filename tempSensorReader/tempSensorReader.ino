@@ -5,6 +5,8 @@ const int NUM_SENSORS = 7;
 
 const long AREF_uV = 3285000;
 
+const long AREF_mV = 3285;
+
 int input = 0;
 
 bool outputValues = false;
@@ -51,7 +53,7 @@ void loop() {
 
       // adds new reading to rolling average
       for (int j = 0; j < READS_PER_CYCLE; j++) {
-        sensorAvgs[i].reading(ADC_to_mCelsius(analogRead(TEMP_PINS[i])));
+        sensorAvgs[i].reading(ADC_to_mCelsius_LM19(analogRead(TEMP_PINS[i])));
       }
       
       // prints temperature data if requested
@@ -75,4 +77,11 @@ void loop() {
 int ADC_to_mCelsius(int reading) {
   long uV = (reading * AREF_uV) / 1024;
   return (uV - 500000) / 10;
+}
+
+// convert ADC reading to milli Celsius for LM19 Temperature Sensor
+int ADC_to_mCelsius_LM19(int reading){
+  double V = (reading * AREF_mV / 1000.) / 1024.;
+  double temp = -1481.96 + sqrt(2.1962 * pow(10, 6) + ( 1.8639 - V ) / (3.88 * pow(10, -6)));
+  return int(temp * 1000);
 }
